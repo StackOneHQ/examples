@@ -1,13 +1,13 @@
 {
   "functions": {
-    "app/api/oauth2/[provider]/callback/route.ts": {
+    "app/api/connect/oauth2/[provider]/callback/route.ts": {
       "maxDuration": 10
     }
   },
   "rewrites": [
     {
-      "source": "/oauth2/:provider/callback",
-      "destination": "/api/oauth2/:provider/callback"
+      "source": "/connect/oauth2/:provider/callback",
+      "destination": "/api/connect/oauth2/:provider/callback"
     }
   ]
 }

@@ -21,7 +21,7 @@ A simple HTTP proxy that forwards OAuth redirects to StackOne. This solves the p
 ## How it works
 
 1. Deploy this app to Vercel with your custom domain
-2. Use `https://your-domain.com/oauth2/{provider}/callback` as your OAuth redirect URI
+2. Use `https://your-domain.com/connect/oauth2/{provider}/callback` as your OAuth redirect URI
 3. When OAuth providers redirect to this URL, the app automatically forwards the request to StackOne's endpoint: `https://api.stackone.com/connect/oauth2/{provider}/callback`
 
 ## Quick Deploy to Vercel
@@ -55,17 +55,17 @@ If your domain is `myapp.com`, use these redirect URLs for different providers:
 
 **Google:**
 ```
-https://myapp.com/oauth2/google/callback
+https://myapp.com/connect/oauth2/google/callback
 ```
 
 **Microsoft:**
 ```
-https://myapp.com/oauth2/microsoft/callback
+https://myapp.com/connect/oauth2/microsoft/callback
 ```
 
 **Slack:**
 ```
-https://myapp.com/oauth2/slack/callback
+https://myapp.com/connect/oauth2/slack/callback
 ```
 
 These URLs will automatically forward all OAuth callbacks to StackOne's endpoint while satisfying OAuth provider requirements for domain verification.
@@ -90,6 +90,6 @@ npm run build
 ## API Endpoints
 
 - `GET /` - Simple info page explaining the proxy
-- `GET/POST /oauth2/{provider}/callback` - OAuth redirect handler (forwards to StackOne)
+- `GET/POST /connect/oauth2/{provider}/callback` - OAuth redirect handler (forwards to StackOne)
   - GET requests: Redirects to StackOne with query parameters
   - POST requests: Forwards request body and headers to StackOne

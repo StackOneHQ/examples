@@ -3,8 +3,8 @@ const nextConfig = {
   async rewrites() {
     return [
       {
-        source: '/oauth2/:provider/callback',
-        destination: '/api/oauth2/:provider/callback',
+        source: '/connect/oauth2/:provider/callback',
+        destination: '/api/connect/oauth2/:provider/callback',
       },
     ];
   },

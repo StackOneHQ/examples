@@ -13,11 +13,11 @@ This OAuth Redirect Proxy is specifically designed to work with [StackOne's OAut
 ## Integration Flow
 
 ```
-User → OAuth Provider → Your Domain/oauth2/{provider}/callback → StackOne
+User → OAuth Provider → Your Domain/connect/oauth2/{provider}/callback → StackOne
 ```
 
 1. User initiates OAuth flow
-2. OAuth provider redirects to `https://yourdomain.com/oauth2/{provider}/callback`
+2. OAuth provider redirects to `https://yourdomain.com/connect/oauth2/{provider}/callback`
 3. This proxy receives the callback with OAuth parameters
 4. Proxy forwards the request to `https://api.stackone.com/connect/oauth2/{provider}/callback`
 5. StackOne processes the authentication
@@ -40,18 +40,18 @@ User → OAuth Provider → Your Domain/oauth2/{provider}/callback → StackOne
 ### 4. Configure StackOne with custom redirect URI
 - In your StackOne integration, set the `redirectUri` parameter to your custom URL
 - This tells StackOne to use your domain for OAuth redirects instead of their default endpoint
-- Example: Set `redirectUri` to `https://yourdomain.com/oauth2/google/callback`
+- Example: Set `redirectUri` to `https://yourdomain.com/connect/oauth2/google/callback`
 
 ### 5. Configure your OAuth app
 - Use the same redirect URL in your OAuth app configuration
-- Example: `https://yourdomain.com/oauth2/google/callback`
+- Example: `https://yourdomain.com/connect/oauth2/google/callback`
 
 ## Example Configuration
 
 If your domain is `myapp.com` and your Vercel app is deployed there:
 
 **OAuth App Settings:**
-- Redirect URI: `https://yourdomain.com/oauth2/google/callback`
+- Redirect URI: `https://yourdomain.com/connect/oauth2/google/callback`
 - Client ID: `your_oauth_client_id`
 - Client Secret: `your_oauth_client_secret`
 
@@ -71,7 +71,7 @@ According to the [StackOne OAuth Proxy Redirect documentation](https://docs.stac
 
 ### How to configure:
 1. **In your StackOne integration settings**, find the `redirectUri` parameter
-2. **Set it to your custom domain URL**: `https://yourdomain.com/oauth2/{provider}/callback`
+2. **Set it to your custom domain URL**: `https://yourdomain.com/connect/oauth2/{provider}/callback`
 3. **StackOne will now redirect OAuth flows to your domain** instead of their default endpoint
 4. **Your proxy automatically forwards** the callback back to StackOne's endpoint
 
@@ -79,13 +79,13 @@ According to the [StackOne OAuth Proxy Redirect documentation](https://docs.stac
 ```javascript
 // In your StackOne integration setup
 {
-  redirectUri: "https://yourdomain.com/oauth2/google/callback"
+  redirectUri: "https://yourdomain.com/connect/oauth2/google/callback"
 }
 ```
 
 This creates the complete flow:
 1. User initiates OAuth → Google
-2. Google redirects to → `https://yourdomain.com/oauth2/google/callback` (your domain)
+2. Google redirects to → `https://yourdomain.com/connect/oauth2/google/callback` (your domain)
 3. Your proxy forwards to → `https://api.stackone.com/connect/oauth2/google/callback` (StackOne)
 4. StackOne processes the authentication
 
@@ -94,7 +94,7 @@ This creates the complete flow:
 ### GET Request Testing
 You can test the redirect functionality by visiting:
 ```
-https://yourdomain.com/oauth2/google/callback?code=test&state=test
+https://yourdomain.com/connect/oauth2/google/callback?code=test&state=test
 ```
 
 This should redirect you to:
@@ -105,7 +105,7 @@ https://api.stackone.com/connect/oauth2/google/callback?code=test&state=test
 ### POST Request Testing
 You can also test POST requests with body data:
 ```bash
-curl -X POST https://yourdomain.com/oauth2/google/callback \
+curl -X POST https://yourdomain.com/connect/oauth2/google/callback \
   -H "Content-Type: application/x-www-form-urlencoded" \
   -d "code=test&state=test"
 ```
