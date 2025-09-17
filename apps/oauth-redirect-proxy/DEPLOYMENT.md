@@ -44,19 +44,16 @@
 ## Using Your Deployed App
 
 1. **Visit your deployed app** (e.g., `https://your-app.vercel.app`)
-2. **Enter your domain** in the input field
-3. **Click "Generate Redirect URL"**
-4. **Copy the generated URL**
-5. **Use this URL** as your OAuth redirect URI in your OAuth app configuration
+2. **Construct your redirect URL** using the format: `https://yourdomain.com/connect/oauth2/{provider}/callback`
+3. **Use this URL** as your OAuth redirect URI in your OAuth app configuration
 
 ## Example Usage
 
 If your deployed app is at `https://your-app.vercel.app` and you want to use `myapp.com` as your domain:
 
-1. Enter `myapp.com` in the app
-2. The redirect URL is: `https://myapp.com/connect/oauth2/google/callback`
-3. Configure this URL in your OAuth app settings
-4. When OAuth providers redirect to this URL, it will automatically forward to StackOne
+1. **Construct the redirect URL**: `https://myapp.com/connect/oauth2/google/callback`
+2. **Configure this URL** in your OAuth app settings
+3. **When OAuth providers redirect** to this URL, it will automatically forward to StackOne
 
 ## Custom Domain Setup
 
@@ -69,10 +66,10 @@ To use your own domain instead of the Vercel subdomain:
 
 2. **Update your OAuth app configuration:**
    - Use your custom domain in the redirect URL
-   - Example: `https://yourdomain.com/connect/oauth2/google/callback`
+   - Example: `https://myapp.com/connect/oauth2/google/callback`
 
 ## Troubleshooting
 
 - **Domain not working?** Make sure DNS records are properly configured
 - **OAuth not redirecting?** Check that your OAuth app is configured with the correct redirect URL
-- **StackOne integration issues?** Verify that the redirect URL matches `https://yourdomain.com/connect/oauth2/{provider}/callback`
+- **StackOne integration issues?** Verify that the redirect URL follows the correct format: `https://yourdomain.com/connect/oauth2/{provider}/callback`

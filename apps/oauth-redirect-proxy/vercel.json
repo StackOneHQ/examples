@@ -3,11 +3,5 @@
     "app/api/connect/oauth2/[provider]/callback/route.ts": {
       "maxDuration": 10
     }
-  },
-  "rewrites": [
-    {
-      "source": "/connect/oauth2/:provider/callback",
-      "destination": "/api/connect/oauth2/:provider/callback"
-    }
-  ]
+  }
 }

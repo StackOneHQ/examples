@@ -2,7 +2,7 @@
 
 A simple HTTP proxy that forwards OAuth redirects to StackOne. This solves the problem of needing a verified domain for OAuth app configurations by providing a hosted redirect endpoint.
 
-> **📖 Project Overview**: This is part of the [OAuth Redirect Proxy Examples](../README.md) repository. See the main README for project structure and other examples.
+> **📖 Project Overview**: This is part of the [StackOne Examples](../README.md) repository. See the main README for project structure and other examples.
 
 ## 📚 Documentation Navigation
 
@@ -92,4 +92,4 @@ npm run build
 - `GET /` - Simple info page explaining the proxy
 - `GET/POST /connect/oauth2/{provider}/callback` - OAuth redirect handler (forwards to StackOne)
   - GET requests: Redirects to StackOne with query parameters
-  - POST requests: Forwards request body and headers to StackOne
+  - POST requests: Forwards request body and content-type/user-agent headers to StackOne
