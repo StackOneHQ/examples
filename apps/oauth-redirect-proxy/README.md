@@ -93,7 +93,3 @@ npm run build
 - `GET/POST /oauth2/{provider}/callback` - OAuth redirect handler (forwards to StackOne)
   - GET requests: Redirects to StackOne with query parameters
   - POST requests: Forwards request body and headers to StackOne
-
-## License
-
-MIT
