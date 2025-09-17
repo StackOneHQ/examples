@@ -1,0 +1,875 @@
+@import "tailwindcss";
+
+/* LlamaIndex ChatMessage Integration Styles */
+.chat-message-container {
+  /* Ensure ChatMessage integrates well with our design */
+}
+
+.chat-message-container .chat-message {
+  /* Override default ChatMessage styles to match our design */
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.chat-message-container .chat-message .markdown {
+  /* Ensure markdown content matches our typography */
+  font-family: var(--font-sans) !important;
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+}
+
+/* User message specific overrides */
+.chat-message-container.user-message .chat-message {
+  background: transparent !important;
+  color: #ffffff !important;
+}
+
+.chat-message-container.user-message .chat-message .markdown {
+  color: #ffffff !important;
+}
+
+.chat-message-container.user-message .chat-message .markdown * {
+  color: #ffffff !important;
+}
+
+.chat-message-container.user-message .chat-message .markdown p {
+  color: #ffffff !important;
+  margin: 0 !important;
+}
+
+.chat-message-container.user-message .chat-message .markdown h1,
+.chat-message-container.user-message .chat-message .markdown h2,
+.chat-message-container.user-message .chat-message .markdown h3,
+.chat-message-container.user-message .chat-message .markdown h4,
+.chat-message-container.user-message .chat-message .markdown h5,
+.chat-message-container.user-message .chat-message .markdown h6 {
+  color: #ffffff !important;
+}
+
+.chat-message-container.user-message .chat-message .markdown code {
+  background: rgba(255, 255, 255, 0.2) !important;
+  color: #ffffff !important;
+  padding: 2px 4px !important;
+  border-radius: 4px !important;
+}
+
+.chat-message-container.user-message .chat-message .markdown pre {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+.chat-message-container.user-message .chat-message .markdown blockquote {
+  border-left: 3px solid rgba(255, 255, 255, 0.3) !important;
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.chat-message-container.user-message .chat-message .markdown a {
+  color: #ffffff !important;
+  text-decoration: underline !important;
+}
+
+.chat-message-container.user-message .chat-message .markdown a:hover {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.chat-message-container.user-message .chat-message .markdown ul,
+.chat-message-container.user-message .chat-message .markdown ol {
+  color: #ffffff !important;
+}
+
+.chat-message-container.user-message .chat-message .markdown li {
+  color: #ffffff !important;
+}
+
+/* Assistant message specific overrides */
+.chat-message-container.assistant-message .chat-message {
+  background: transparent !important;
+  color: var(--stackone-gray-900) !important;
+}
+
+.chat-message-container.assistant-message .chat-message .markdown {
+  color: var(--stackone-gray-900) !important;
+  font-family: var(--font-sans) !important;
+  font-size: 14px !important;
+  line-height: 1.6 !important;
+}
+
+/* Assistant message markdown elements */
+.chat-message-container.assistant-message .chat-message .markdown p {
+  color: var(--stackone-gray-900) !important;
+  margin: 0 0 12px 0 !important;
+  line-height: 1.6 !important;
+}
+
+.chat-message-container.assistant-message .chat-message .markdown p:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* Headings */
+.chat-message-container.assistant-message .chat-message .markdown h1 {
+  color: var(--stackone-gray-900) !important;
+  font-size: 24px !important;
+  font-weight: 700 !important;
+  line-height: 1.3 !important;
+  margin: 24px 0 16px 0 !important;
+  font-family: var(--font-sans) !important;
+}
+
+.chat-message-container.assistant-message .chat-message .markdown h2 {
+  color: var(--stackone-gray-900) !important;
+  font-size: 20px !important;
+  font-weight: 600 !important;
+  line-height: 1.3 !important;
+  margin: 20px 0 12px 0 !important;
+  font-family: var(--font-sans) !important;
+}
+
+.chat-message-container.assistant-message .chat-message .markdown h3 {
+  color: var(--stackone-gray-900) !important;
+  font-size: 18px !important;
+  font-weight: 600 !important;
+  line-height: 1.3 !important;
+  margin: 16px 0 8px 0 !important;
+  font-family: var(--font-sans) !important;
+}
+
+.chat-message-container.assistant-message .chat-message .markdown h4 {
+  color: var(--stackone-gray-900) !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  line-height: 1.3 !important;
+  margin: 14px 0 6px 0 !important;
+  font-family: var(--font-sans) !important;
+}
+
+.chat-message-container.assistant-message .chat-message .markdown h5 {
+  color: var(--stackone-gray-900) !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  line-height: 1.3 !important;
+  margin: 12px 0 4px 0 !important;
+  font-family: var(--font-sans) !important;
+}
+
+.chat-message-container.assistant-message .chat-message .markdown h6 {
+  color: var(--stackone-gray-700) !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  line-height: 1.3 !important;
+  margin: 12px 0 4px 0 !important;
+  font-family: var(--font-sans) !important;
+}
+
+/* Lists */
+.chat-message-container.assistant-message .chat-message .markdown ul,
+.chat-message-container.assistant-message .chat-message .markdown ol {
+  color: var(--stackone-gray-900) !important;
+  margin: 12px 0 !important;
+  padding-left: 20px !important;
+}
+
+.chat-message-container.assistant-message .chat-message .markdown li {
+  color: var(--stackone-gray-900) !important;
+  margin: 4px 0 !important;
+  line-height: 1.6 !important;
+}
+
+.chat-message-container.assistant-message .chat-message .markdown ul li {
+  list-style-type: disc !important;
+}
+
+.chat-message-container.assistant-message .chat-message .markdown ol li {
+  list-style-type: decimal !important;
+}
+
+/* Nested lists */
+.chat-message-container.assistant-message .chat-message .markdown ul ul,
+.chat-message-container.assistant-message .chat-message .markdown ol ol,
+.chat-message-container.assistant-message .chat-message .markdown ul ol,
+.chat-message-container.assistant-message .chat-message .markdown ol ul {
+  margin: 4px 0 !important;
+}
+
+/* Code */
+.chat-message-container.assistant-message .chat-message .markdown code {
+  background: var(--stackone-gray-100) !important;
+  color: var(--stackone-gray-800) !important;
+  padding: 2px 6px !important;
+  border-radius: 4px !important;
+  font-family: var(--font-mono) !important;
+  font-size: 13px !important;
+  border: 1px solid var(--stackone-gray-200) !important;
+}
+
+.chat-message-container.assistant-message .chat-message .markdown pre {
+  background: var(--stackone-gray-50) !important;
+  color: var(--stackone-gray-800) !important;
+  border: 1px solid var(--stackone-gray-200) !important;
+  border-radius: 8px !important;
+  padding: 16px !important;
+  margin: 16px 0 !important;
+  overflow-x: auto !important;
+  font-family: var(--font-mono) !important;
+  font-size: 13px !important;
+  line-height: 1.5 !important;
+}
+
+.chat-message-container.assistant-message .chat-message .markdown pre code {
+  background: transparent !important;
+  color: inherit !important;
+  padding: 0 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  font-size: inherit !important;
+}
+
+/* Blockquotes */
+.chat-message-container.assistant-message .chat-message .markdown blockquote {
+  border-left: 4px solid var(--stackone-gray-300) !important;
+  color: var(--stackone-gray-700) !important;
+  background: var(--stackone-gray-50) !important;
+  margin: 16px 0 !important;
+  padding: 12px 16px !important;
+  border-radius: 0 8px 8px 0 !important;
+  font-style: italic !important;
+}
+
+.chat-message-container.assistant-message .chat-message .markdown blockquote p {
+  margin: 0 !important;
+  color: inherit !important;
+}
+
+/* Links */
+.chat-message-container.assistant-message .chat-message .markdown a {
+  color: var(--stackone-primary) !important;
+  text-decoration: none !important;
+  border-bottom: 1px solid transparent !important;
+  transition: all 0.2s ease !important;
+}
+
+.chat-message-container.assistant-message .chat-message .markdown a:hover {
+  color: var(--stackone-primary-dark) !important;
+  border-bottom-color: var(--stackone-primary) !important;
+}
+
+/* Tables */
+.chat-message-container.assistant-message .chat-message .markdown table {
+  border-collapse: collapse !important;
+  width: 100% !important;
+  margin: 16px 0 !important;
+  border: 1px solid var(--stackone-gray-200) !important;
+  border-radius: 8px !important;
+  overflow: hidden !important;
+}
+
+.chat-message-container.assistant-message .chat-message .markdown th,
+.chat-message-container.assistant-message .chat-message .markdown td {
+  border: 1px solid var(--stackone-gray-200) !important;
+  padding: 12px 16px !important;
+  text-align: left !important;
+}
+
+.chat-message-container.assistant-message .chat-message .markdown th {
+  background: var(--stackone-gray-50) !important;
+  font-weight: 600 !important;
+  color: var(--stackone-gray-900) !important;
+}
+
+.chat-message-container.assistant-message .chat-message .markdown td {
+  color: var(--stackone-gray-800) !important;
+}
+
+/* Horizontal rules */
+.chat-message-container.assistant-message .chat-message .markdown hr {
+  border: none !important;
+  height: 1px !important;
+  background: var(--stackone-gray-200) !important;
+  margin: 24px 0 !important;
+}
+
+/* Strong and emphasis */
+.chat-message-container.assistant-message .chat-message .markdown strong {
+  font-weight: 600 !important;
+  color: var(--stackone-gray-900) !important;
+}
+
+.chat-message-container.assistant-message .chat-message .markdown em {
+  font-style: italic !important;
+  color: var(--stackone-gray-800) !important;
+}
+
+/* LlamaIndex ChatSection Integration */
+.chat-section {
+  background: var(--chat-background) !important;
+  color: var(--chat-text) !important;
+}
+
+/* LlamaIndex ChatMessages Integration */
+.chat-messages {
+  background: transparent !important;
+}
+
+.chat-messages .chat-messages-list {
+  background: transparent !important;
+}
+
+/* LlamaIndex ChatInput Integration */
+.chat-input {
+  background: var(--chat-surface) !important;
+  border: 1px solid var(--chat-border) !important;
+  border-radius: 12px !important;
+}
+
+.chat-input .chat-input-field {
+  background: transparent !important;
+  border: none !important;
+  color: var(--chat-text) !important;
+  font-family: var(--font-sans) !important;
+}
+
+.chat-input .chat-input-field:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.chat-input .chat-input-submit {
+  background: var(--chat-primary) !important;
+  border: none !important;
+  color: white !important;
+  border-radius: 8px !important;
+  font-family: var(--font-sans) !important;
+  font-weight: 500 !important;
+  transition: all 0.2s ease !important;
+}
+
+.chat-input .chat-input-submit:hover {
+  background: var(--stackone-primary-dark) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Override LlamaIndex default styles to match our design */
+[data-llamaindex-chat-ui] {
+  font-family: var(--font-sans) !important;
+}
+
+[data-llamaindex-chat-ui] .chat-message {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+[data-llamaindex-chat-ui] .chat-message .markdown {
+  font-family: var(--font-sans) !important;
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+}
+
+/* Custom animations */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 20px 40px rgba(80, 80, 80, 0.3);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 25px 50px rgba(80, 80, 80, 0.4);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+:root {
+  /* LlamaIndex Chat UI CSS Variables */
+  --chat-primary: #505050;
+  --chat-secondary: #707070;
+  --chat-background: #ffffff;
+  --chat-surface: #fafafa;
+  --chat-border: #f0f0f0;
+  --chat-text: #202020;
+  --chat-text-secondary: #707070;
+  --chat-success: #505050;
+  --chat-warning: #f59e0b;
+  --chat-error: #ef4444;
+  
+  /* StackOne Brand Colors - Updated to match actual StackOne design */
+  --stackone-primary: #505050;
+  --stackone-primary-dark: #404040;
+  --stackone-primary-light: #707070;
+  --stackone-secondary: #8b5cf6;
+  --stackone-accent: #06b6d4;
+  --stackone-success: #505050;
+  --stackone-warning: #f59e0b;
+  --stackone-error: #ef4444;
+  --stackone-nav-text: #505050;
+  
+  /* Neutral Colors - Updated to match StackOne */
+  --stackone-gray-50: #fafafa;
+  --stackone-gray-100: #f5f5f5;
+  --stackone-gray-200: #f0f0f0;
+  --stackone-gray-300: #e0e0e0;
+  --stackone-gray-400: #a0a0a0;
+  --stackone-gray-500: #707070;
+  --stackone-gray-600: #505050;
+  --stackone-gray-700: #404040;
+  --stackone-gray-800: #303030;
+  --stackone-gray-900: #202020;
+  
+  /* Background and Foreground */
+  --background: #ffffff;
+  --foreground: #202020;
+  --background-secondary: #fafafa;
+  --foreground-secondary: #707070;
+  
+  /* StackOne specific colors */
+  --stackone-card-bg: #ffffff;
+  --stackone-card-border: #f0f0f0;
+  --stackone-sidebar-bg: #ffffff;
+  --stackone-sidebar-border: #f0f0f0;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-background-secondary: var(--background-secondary);
+  --color-foreground-secondary: var(--foreground-secondary);
+  
+  /* StackOne Brand Colors */
+  --color-stackone-primary: var(--stackone-primary);
+  --color-stackone-primary-dark: var(--stackone-primary-dark);
+  --color-stackone-primary-light: var(--stackone-primary-light);
+  --color-stackone-secondary: var(--stackone-secondary);
+  --color-stackone-accent: var(--stackone-accent);
+  --color-stackone-success: var(--stackone-success);
+  --color-stackone-warning: var(--stackone-warning);
+  --color-stackone-error: var(--stackone-error);
+  --color-stackone-nav-text: var(--stackone-nav-text);
+  
+  /* Typography */
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  --font-mono: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #fafafa;
+    --foreground: #202020;
+    --background-secondary: #f5f5f5;
+    --foreground-secondary: #707070;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  font-variation-settings: normal;
+  line-height: 1.6;
+}
+
+/* StackOne Brand Utilities */
+.text-stackone-primary {
+  color: var(--stackone-primary);
+}
+
+.bg-stackone-primary {
+  background-color: var(--stackone-primary);
+}
+
+.border-stackone-primary {
+  border-color: var(--stackone-primary);
+}
+
+.hover\:bg-stackone-primary-dark:hover {
+  background-color: var(--stackone-primary-dark);
+}
+
+.hover\:text-stackone-primary:hover {
+  color: var(--stackone-primary);
+}
+
+.text-stackone-nav {
+  color: var(--stackone-nav-text);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--stackone-gray-100);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--stackone-gray-300);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--stackone-gray-400);
+}
+
+/* Focus styles */
+.focus\:ring-stackone:focus {
+  --tw-ring-color: var(--stackone-primary);
+}
+
+/* Gradient backgrounds */
+.bg-stackone-gradient {
+  background: linear-gradient(135deg, var(--stackone-primary) 0%, var(--stackone-secondary) 100%);
+}
+
+.bg-stackone-gradient-light {
+  background: linear-gradient(135deg, var(--stackone-primary-light) 0%, var(--stackone-accent) 100%);
+}
+
+/* Border utilities */
+.border-stackone {
+  border: 1px solid rgb(240, 240, 240);
+  border-radius: 12px;
+}
+
+.border-stackone-light {
+  border: 1px solid rgb(240, 240, 240);
+}
+
+/* Rounded corner utilities */
+.rounded-stackone {
+  border-radius: 12px;
+}
+
+.rounded-stackone-sm {
+  border-radius: 8px;
+}
+
+.rounded-stackone-lg {
+  border-radius: 16px;
+}
+
+/* Active navigation styles */
+.nav-item-active {
+  background-color: rgba(0, 175, 102, 0.1);
+  color: var(--stackone-primary);
+  border-radius: 8px;
+}
+
+.nav-item-active .ant-menu-item-icon,
+.nav-item-active .ant-menu-title-content {
+  color: var(--stackone-primary);
+}
+
+/* Custom navigation menu styles */
+.custom-nav-menu .ant-menu-item {
+  border-radius: 8px;
+  margin: 0 4px;
+  transition: all 0.2s ease;
+}
+
+.custom-nav-menu .ant-menu-item:hover {
+  background-color: rgba(0, 175, 102, 0.05);
+  color: var(--stackone-primary);
+}
+
+.custom-nav-menu .ant-menu-item-selected {
+  background-color: rgba(0, 175, 102, 0.1);
+  color: var(--stackone-primary);
+  border-radius: 8px;
+}
+
+.custom-nav-menu .ant-menu-item-selected .ant-menu-item-icon {
+  color: var(--stackone-primary);
+}
+
+.custom-nav-menu .ant-menu-item-selected::after {
+  display: none;
+}
+
+/* StackOne Sidebar Styles */
+.stackone-sidebar-menu .ant-menu-item {
+  height: 40px;
+  line-height: 40px;
+  margin: 2px 0;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  color: #505050;
+  font-size: 14px;
+  font-weight: 500;
+  border: none !important;
+}
+
+.stackone-sidebar-menu .ant-menu-item::after {
+  display: none !important;
+}
+
+.stackone-sidebar-menu .ant-menu-item::before {
+  display: none !important;
+}
+
+.stackone-sidebar-menu .ant-menu-item:hover {
+  background-color: #f5f5f5 !important;
+  color: #6c757d !important;
+}
+
+.stackone-sidebar-menu .ant-menu-item-selected {
+  background-color: #fafbfc !important;
+  color: #6c757d !important;
+  border-radius: 8px;
+  border: none !important;
+}
+
+.stackone-sidebar-menu .ant-menu-item-selected .ant-menu-item-icon {
+  color: #6c757d !important;
+}
+
+.stackone-sidebar-menu .ant-menu-item-selected::after {
+  display: none;
+}
+
+.stackone-sidebar-menu .ant-menu-item-icon {
+  font-size: 16px;
+  margin-right: 12px;
+}
+
+.stackone-sidebar-menu {
+  border: none !important;
+  border-right: none !important;
+}
+
+.stackone-sidebar-menu .ant-menu {
+  border: none !important;
+  border-right: none !important;
+}
+
+/* Additional specificity for mainMenu class */
+.mainMenu {
+  border: none !important;
+  border-right: none !important;
+}
+
+.mainMenu .ant-menu {
+  border: none !important;
+  border-right: none !important;
+}
+
+.mainMenu .ant-menu-item {
+  border: none !important;
+  border-right: none !important;
+}
+
+.mainMenu .ant-menu-item::after {
+  display: none !important;
+}
+
+.mainMenu .ant-menu-item::before {
+  display: none !important;
+}
+
+.mainMenu .ant-menu-item:hover {
+  background-color: #f5f5f5 !important;
+  border: none !important;
+  border-right: none !important;
+}
+
+.mainMenu .ant-menu-item-selected {
+  background-color: #fafbfc !important;
+  color: #404040 !important;
+  border: none !important;
+  border-right: none !important;
+}
+
+.mainMenu .ant-menu-item-selected .ant-menu-item-icon {
+  color: #404040 !important;
+}
+
+.mainMenu .ant-menu-item-selected::after {
+  display: none !important;
+}
+
+.user-profile-trigger:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* StackOne Search Input */
+.ant-input-affix-wrapper.stackone-search {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background: #fafafa;
+  transition: all 0.2s ease;
+}
+
+.ant-input-affix-wrapper.stackone-search:hover {
+  border-color: #000000;
+}
+
+.ant-input-affix-wrapper.stackone-search:focus,
+.ant-input-affix-wrapper.stackone-search.ant-input-affix-wrapper-focused {
+  border-color: #000000;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+}
+
+/* StackOne Card Styles */
+.stackone-card {
+  background: var(--stackone-card-bg);
+  border: 1px solid var(--stackone-card-border);
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+}
+
+.stackone-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* StackOne Button Styles */
+.stackone-button-primary {
+  background: var(--stackone-primary);
+  border-color: var(--stackone-primary);
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.stackone-button-primary:hover {
+  background: var(--stackone-primary-dark);
+  border-color: var(--stackone-primary-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* StackOne Typography */
+.stackone-title {
+  color: var(--stackone-gray-900);
+  font-weight: 600;
+  margin: 0;
+}
+
+.stackone-subtitle {
+  color: var(--stackone-gray-600);
+  font-weight: 500;
+}
+
+.stackone-text {
+  color: var(--stackone-gray-700);
+}
+
+.stackone-text-secondary {
+  color: var(--stackone-gray-500);
+}
+
+/* StackOne Table Styles */
+.stackone-table .ant-table-thead > tr > th {
+  background: var(--stackone-gray-50);
+  border-bottom: 1px solid var(--stackone-gray-200);
+  color: var(--stackone-gray-700);
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stackone-table .ant-table-tbody > tr > td {
+  border-bottom: 1px solid var(--stackone-gray-100);
+  color: var(--stackone-gray-700);
+}
+
+.stackone-table .ant-table-tbody > tr:hover > td {
+  background: var(--stackone-gray-50);
+}
+
+/* StackOne Progress Styles */
+.stackone-progress .ant-progress-bg {
+  background: var(--stackone-primary);
+}
+
+.stackone-progress .ant-progress-outer {
+  background: var(--stackone-gray-200);
+}
+
+/* StackOne Tag Styles */
+.stackone-tag {
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 12px;
+}
+
+/* StackOne Statistic Styles */
+.stackone-statistic .ant-statistic-title {
+  color: var(--stackone-gray-600);
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.stackone-statistic .ant-statistic-content {
+  color: var(--stackone-gray-900);
+  font-weight: 600;
+}
+
+/* StackOne Alert Styles - Success Messages */
+.ant-alert-success {
+  background-color: #f6ffed !important;
+  border: 1px solid #b7eb8f !important;
+  border-radius: 8px !important;
+}
+
+.ant-alert-success .ant-alert-message {
+  color: #389e0d !important;
+  font-weight: 500 !important;
+  font-size: 15px !important;
+}
+
+.ant-alert-success .ant-alert-icon {
+  color: #52c41a !important;
+}
+
+/* StackOne Alert Styles - Error Messages */
+.ant-alert-error {
+  background-color: #fff2f0 !important;
+  border: 1px solid #ffccc7 !important;
+  border-radius: 8px !important;
+}
+
+.ant-alert-error .ant-alert-message {
+  color: #cf1322 !important;
+  font-weight: 500 !important;
+  font-size: 15px !important;
+}
+
+.ant-alert-error .ant-alert-icon {
+  color: #ff4d4f !important;
+}

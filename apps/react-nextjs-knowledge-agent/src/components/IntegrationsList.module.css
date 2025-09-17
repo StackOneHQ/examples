@@ -1,0 +1,228 @@
+/* IntegrationsList Styles */
+
+/* Card Styles */
+.card {
+  border: 1px solid #f0f0f0;
+  position: static;
+  cursor: default;
+}
+
+.cardFull {
+  position: relative;
+}
+
+.cardSelectable {
+  cursor: pointer;
+}
+
+/* Avatar Styles */
+.avatar {
+  background-color: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.avatarDashboard {
+  margin-right: 8px;
+}
+
+.avatarFull {
+  margin-right: 12px;
+}
+
+.avatarSelectable {
+  margin-right: 12px;
+}
+
+/* Provider Icon Styles */
+.providerIcon {
+  object-fit: contain;
+}
+
+.providerIconFull {
+  width: 24px;
+  height: 24px;
+}
+
+.providerIconDashboard {
+  width: 16px;
+  height: 16px;
+}
+
+.providerIconSelectable {
+  width: 16px;
+  height: 16px;
+}
+
+/* Content Container Styles */
+.contentContainer {
+  display: flex;
+  align-items: flex-start;
+}
+
+.contentContainerDashboard {
+  margin-bottom: 8px;
+}
+
+.contentContainerFull {
+  margin-bottom: 12px;
+}
+
+.contentContainerSelectable {
+  margin-bottom: 12px;
+  align-items: flex-start;
+}
+
+/* Info Container Styles */
+.infoContainer {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  width: 100%;
+}
+
+.infoContainerSelectable {
+  padding-right: 0;
+}
+
+/* Header Row Styles */
+.headerRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.headerRowSelectable {
+  margin-bottom: 12px;
+  width: 100%;
+}
+
+/* Bottom Row Styles */
+.bottomRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-top: auto;
+}
+
+.bottomRowSelectable {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-top: auto;
+  width: 100%;
+}
+
+/* Title Styles */
+.title {
+  color: #202020;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: block;
+  line-height: 1.2;
+}
+
+.titleDashboard {
+  font-size: 16px;
+}
+
+.titleFull {
+  font-size: 14px;
+}
+
+.titleSelectable {
+  font-size: 16px;
+}
+
+/* Date Styles */
+.date {
+  color: #707070;
+  flex-shrink: 0;
+  margin-left: 8px;
+  line-height: 1.2;
+}
+
+.dateDashboard {
+  font-size: 12px;
+}
+
+.dateFull {
+  font-size: 12px;
+}
+
+.dateSelectable {
+  font-size: 12px;
+  margin-right: 0;
+}
+
+/* Tag Styles */
+.tag {
+  margin: 0;
+}
+
+.tagDashboard {
+  border-radius: 4px;
+  font-size: 10px;
+  width: fit-content;
+  flex-shrink: 0;
+}
+
+.tagFull {
+  border-radius: 6px;
+  font-size: 12px;
+  width: fit-content;
+  flex-shrink: 0;
+}
+
+.tagSelectable {
+  border-radius: 6px;
+  font-size: 12px;
+  width: fit-content;
+  flex-shrink: 0;
+  margin: 0;
+}
+
+/* Checkbox Styles */
+.checkbox {
+  color: #000000;
+  align-self: flex-end;
+  margin-left: 12px;
+  flex-shrink: 0;
+}
+
+.checkboxSelectable {
+  margin: 0;
+  flex-shrink: 0;
+}
+
+/* Icon Styles */
+.icon {
+  color: #000000;
+}
+
+.iconDashboard {
+  font-size: 12px;
+}
+
+.iconFull {
+  font-size: 24px;
+}
+
+.iconSelectable {
+  font-size: 12px;
+}
+
+/* Actions Component Styles */
+.actionsContainer {
+  display: flex;
+  align-items: center;
+  margin-left: 12px;
+}

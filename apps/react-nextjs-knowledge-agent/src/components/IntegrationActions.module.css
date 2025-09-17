@@ -1,0 +1,105 @@
+/* IntegrationActions Styles */
+
+/* Action Buttons */
+.editButton {
+  color: #707070;
+  border-radius: 6px;
+}
+
+.deleteButton {
+  color: #ff4d4f;
+  border-radius: 6px;
+}
+
+.connectButton {
+  width: 100%;
+  background-color: #000000;
+  border-color: #000000;
+  border-radius: 8px;
+  height: 40px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.tryAgainButton {
+  width: 100%;
+  background-color: #000000;
+  border-color: #000000;
+  border-radius: 8px;
+}
+
+/* Modal Styles */
+.modal {
+  border-radius: 12px;
+}
+
+.modalContent {
+  text-align: center;
+  padding: 20px;
+}
+
+/* Loading Modal Styles */
+.loadingIconContainer {
+  margin: 0 auto 16px;
+  width: 64px;
+  height: 64px;
+  background-color: #f0f0f0;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loadingSpinner {
+  width: 32px;
+  height: 32px;
+  border: 2px solid #00af66;
+  border-top: 2px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loadingTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: #202020;
+  margin-bottom: 8px;
+}
+
+.loadingText {
+  color: #707070;
+}
+
+/* Error Modal Styles */
+.errorIconContainer {
+  margin: 0 auto 16px;
+  width: 64px;
+  height: 64px;
+  background-color: #fff2f0;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.errorIcon {
+  font-size: 24px;
+  color: #ff4d4f;
+}
+
+.errorTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: #202020;
+  margin-bottom: 8px;
+}
+
+.errorText {
+  color: #707070;
+  margin-bottom: 24px;
+}

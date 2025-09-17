@@ -1,0 +1,115 @@
+/* IntegrationsPageClient Styles */
+
+/* Main Container */
+.container {
+  padding: 32px;
+  background-color: #fafafa;
+  min-height: 100vh;
+}
+
+/* Header */
+.header {
+  margin-bottom: 32px;
+}
+
+.headerTitle {
+  margin: 0;
+  color: #202020;
+}
+
+.headerText {
+  color: #707070;
+  font-size: 16px;
+}
+
+/* Stats Cards */
+.statsRow {
+  margin-bottom: 32px;
+}
+
+.statsCard {
+  text-align: center;
+}
+
+.statsNumber {
+  font-size: 32px;
+  font-weight: 600;
+  color: #000000;
+  margin-bottom: 8px;
+}
+
+.statsLabel {
+  color: #707070;
+}
+
+/* Main Cards */
+.mainCard {
+  margin-bottom: 32px;
+}
+
+.cardTitle {
+  margin: 0 !important;
+  color: #202020;
+  font-size: 18px !important;
+  font-weight: 600 !important;
+  line-height: 1.4 !important;
+  padding: 0 !important;
+  vertical-align: baseline !important;
+}
+
+/* Override Ant Design Card title margins */
+.mainCard :global(.ant-card-head-title) {
+  padding: 16px 0 !important;
+  margin: 0 !important;
+}
+
+/* Empty State */
+.emptyState {
+  margin: 40px 0;
+}
+
+.emptyText {
+  color: #707070;
+}
+
+/* Provider Cards */
+.providerCard {
+  border: 1px solid #f0f0f0;
+  border-radius: 12px;
+}
+
+.providerCardContent {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.providerAvatar {
+  background-color: #f0f0f0;
+  margin-right: 12px;
+}
+
+.providerInfo {
+  flex: 1;
+}
+
+.providerName {
+  color: #202020;
+}
+
+.providerDescription {
+  color: #707070;
+  font-size: 14px;
+}
+
+/* Provider Icon */
+.providerIcon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+.providerIconFallback {
+  font-size: 24px;
+  color: #000000;
+}

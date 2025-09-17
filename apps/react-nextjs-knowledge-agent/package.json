@@ -1,0 +1,48 @@
+{
+  "name": "react-nextjs-knowledge-agent",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "NODE_OPTIONS='--no-warnings' next dev --turbopack",
+    "build": "NODE_OPTIONS='--no-warnings' next build",
+    "start": "NODE_OPTIONS='--no-warnings' next start",
+    "lint": "eslint"
+  },
+  "dependencies": {
+    "@ant-design/icons": "^5.6.1",
+    "@langchain/core": "^0.3.72",
+    "@langchain/textsplitters": "^0.1.0",
+    "@llamaindex/azure": "^0.1.35",
+    "@llamaindex/chat-ui": "^0.6.1",
+    "@stackone/file-picker": "^0.7.0",
+    "@stackone/react-hub": "^1.1.1",
+    "@stackone/stackone-client-ts": "^4.26.0",
+    "@supabase/auth-ui-react": "^0.4.7",
+    "@supabase/auth-ui-shared": "^0.1.8",
+    "@supabase/ssr": "^0.7.0",
+    "@supabase/supabase-js": "^2.56.0",
+    "@types/uuid": "^10.0.0",
+    "antd": "^5.27.2",
+    "bootstrap": "^5.3.8",
+    "bootstrap-icons": "^1.13.1",
+    "dotenv": "^17.2.2",
+    "lucide-react": "^0.542.0",
+    "next": "15.5.2",
+    "pgvector": "0.2.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-markdown": "^10.1.0",
+    "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^18.3.24",
+    "@types/react-dom": "^18.3.7",
+    "eslint": "^9",
+    "eslint-config-next": "^15.5.2",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}
