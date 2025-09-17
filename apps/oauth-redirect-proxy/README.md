@@ -26,7 +26,7 @@ A simple HTTP proxy that forwards OAuth redirects to StackOne. This solves the p
 
 ## Quick Deploy to Vercel
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/your-username/oauth-redirect-proxy)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/StackOneHQ/examples/apps/oauth-redirect-proxy)
 
 ## Manual Deployment
 
