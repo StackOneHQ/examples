@@ -3,7 +3,7 @@
 ## Quick Deploy to Vercel (One-Click)
 
 1. **Click the deploy button below:**
-   [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/StackOneHQ/examples/apps/oauth-redirect-proxy)
+   [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FStackOneHQ%2Fexamples%2Ftree%2Fmain%2Fapps%2Foauth-redirect-proxy)
 
 2. **Configure your custom domain (optional):**
    - After deployment, go to your Vercel dashboard
