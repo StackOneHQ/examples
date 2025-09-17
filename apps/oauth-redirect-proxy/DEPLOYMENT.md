@@ -54,7 +54,7 @@
 If your deployed app is at `https://your-app.vercel.app` and you want to use `myapp.com` as your domain:
 
 1. Enter `myapp.com` in the app
-2. Get the redirect URL: `https://yourdomain.com/connect/oauth2/google/callback`
+2. The redirect URL is: `https://myapp.com/connect/oauth2/google/callback`
 3. Configure this URL in your OAuth app settings
 4. When OAuth providers redirect to this URL, it will automatically forward to StackOne
 
