@@ -69,18 +69,13 @@ docker run -p 3000:3000 oauth-redirect-proxy
 
 ## Examples
 
-If your domain is `yourdomain.com`, you can use either URL pattern:
+If your domain is `yourdomain.com`, use the provider-specific URL pattern:
 
 **Provider-specific URLs:**
 ```
 https://yourdomain.com/connect/oauth2/google/callback
 https://yourdomain.com/connect/oauth2/microsoft/callback
 https://yourdomain.com/connect/oauth2/slack/callback
-```
-
-**Generic URL (for testing or when provider is determined by StackOne):**
-```
-https://yourdomain.com/connect/oauth2/callback
 ```
 
 These URLs will automatically forward all OAuth callbacks to StackOne's endpoint while satisfying OAuth provider requirements for domain verification.
@@ -108,7 +103,3 @@ npm run build
   - GET requests: Redirects to StackOne with query parameters (cookies are automatically included by the browser)
   - POST requests: Forwards request body and end-to-end headers to StackOne
   - Response: Forwards end-to-end response headers and cookies back to the client
-
-- `GET/POST /connect/oauth2/callback` - Generic OAuth redirect handler (no provider specified)
-  - Same functionality as above but forwards to StackOne's generic callback endpoint
-  - Useful for testing or when provider is determined by StackOne
