@@ -61,7 +61,8 @@ export async function updateSession(request: NextRequest) {
     '/login',
     '/auth',
     '/api/health',
-    '/api/stackone/connectors'
+    '/api/stackone/connectors',
+    '/api/stackone/webhook'
   ]
   
   const isPublicRoute = publicRoutes.some(route => 

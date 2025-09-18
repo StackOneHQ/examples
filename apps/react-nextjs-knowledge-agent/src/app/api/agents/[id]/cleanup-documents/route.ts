@@ -134,18 +134,9 @@ export async function POST(
     })
 
     // Find agent-document relationships that are no longer valid
-    // Check both integration_id and stackone_document_id to avoid accidental removals
-    const relationshipsToRemove = currentAgentDocuments?.filter(rel => {
-      const doc = rel.documents as any
-      const integrationId = doc.integration_id
-      const documentId = doc.stackone_document_id
-      
-      // Check if this document's integration is still associated with the agent
-      const agentHasIntegration = agentIntegrations.some(ai => ai.integration_id === integrationId)
-      
-      // If the integration is no longer associated, or the file ID is not in valid files
-      return !agentHasIntegration || !validFileIds.has(documentId)
-    }) || []
+    const relationshipsToRemove = currentAgentDocuments?.filter(rel => 
+      !validFileIds.has((rel.documents as any).stackone_document_id)
+    ) || []
 
     logger.log(`Found ${relationshipsToRemove.length} agent-document relationships to remove for agent ${agentId}`)
     logger.log('Relationships to remove:', relationshipsToRemove.map(rel => ({ 

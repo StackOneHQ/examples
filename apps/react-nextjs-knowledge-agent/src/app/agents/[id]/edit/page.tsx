@@ -694,7 +694,6 @@ export default function EditAgentPage() {
                                     {file.name}
                                   </span>
                                   <button
-                                    type="button"
                                     onClick={() => handleRemoveFile(integrationId, file.id)}
                                     style={{
                                       background: 'none',

@@ -32,14 +32,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Integration not found' }, { status: 404 })
     }
 
-    // Validate documentIds is an array
-    if (!Array.isArray(documentIds)) {
-      return NextResponse.json({ 
-        error: 'documentIds must be an array of document IDs' 
-      }, { status: 400 })
-    }
+    // Document IDs must be provided since listDocuments is no longer available
+    const documentsToProcess = documentIds || []
     
-    if (documentIds.length === 0) {
+    if (documentsToProcess.length === 0) {
       return NextResponse.json({ 
         error: 'Document IDs are required. Please select specific documents to process.' 
       }, { status: 400 })
@@ -48,16 +44,16 @@ export async function POST(request: NextRequest) {
     // Initialize RAG service and process documents
     const ragService = new RAGService()
     
-    // Process documents asynchronously - use the correct method name
-    ragService.processDocuments(documentIds, user.id, integration.id)
+    // Process documents asynchronously
+    ragService.ingestDocuments(documentsToProcess, user.id)
       .catch(error => {
         logger.error('Error processing documents:', error)
       })
 
     return NextResponse.json({ 
       success: true, 
-      message: `Processing ${documentIds.length} documents`,
-      documentIds: documentIds
+      message: `Processing ${documentsToProcess.length} documents`,
+      documentIds: documentsToProcess
     })
 
   } catch (error) {
@@ -127,20 +123,9 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'File IDs are required' }, { status: 400 })
     }
 
-    // Verify ownership: Check if documents belong to the authenticated user
-    const { data: documents, error: documentsError } = await supabase
-      .from('documents')
-      .select('id, user_id')
-      .in('stackone_document_id', fileIds)
-      .eq('user_id', user.id)
-
-    if (documentsError || !documents || documents.length !== fileIds.length) {
-      return NextResponse.json({ error: 'Some documents not found or access denied' }, { status: 404 })
-    }
-
     // Initialize RAG service and delete documents
     const ragService = new RAGService()
-    await ragService.deleteDocuments(fileIds, user.id)
+    await ragService.deleteDocuments(fileIds)
 
     return NextResponse.json({
       success: true,

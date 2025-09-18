@@ -28,7 +28,7 @@ export interface ConnectorMetadata {
   updated_at: string;
 }
 
-export interface KnowledgeDocument {
+export interface Document {
   id: string;
   integration_id: string;
   user_id: string;

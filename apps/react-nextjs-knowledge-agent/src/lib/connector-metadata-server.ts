@@ -36,8 +36,7 @@ export async function loadConnectorMetadata(supabase: SupabaseClient, apiKey: st
       && cached.length > 0
       && PROVIDERS.every(provider => cached.some(c => c.provider === provider))
     ) {
-      // Filter cached results to only return configured providers
-      return cached.filter(metadata => PROVIDERS.includes(metadata.provider))
+      return cached
     }
 
     // If no cache, fetch from StackOne API
@@ -55,7 +54,7 @@ export async function loadConnectorMetadata(supabase: SupabaseClient, apiKey: st
         provider: provider!.provider,
         display_name: provider!.provider_name,
         category: provider!.category,
-        icon_url: provider!.resources?.images?.logo_url || '',
+        icon_url: provider!.resources.images.logo_url,
         is_available: true
       }))
 

@@ -17,12 +17,7 @@ export async function POST(request: NextRequest) {
     const { message, agentId, isEdit } = requestData
     let { threadId } = requestData
 
-    logger.log('Chat API - Request data:', { 
-      messageLength: message?.length || 0, 
-      agentId, 
-      threadId, 
-      userId: user.id.substring(0, 8) + '...' // Only log partial user ID
-    })
+    logger.log('Chat API - Request data:', { message, agentId, threadId, userId: user.id })
 
     if (!message || !agentId) {
       logger.log('Chat API - Missing required fields:', { message: !!message, agentId: !!agentId })
@@ -37,14 +32,10 @@ export async function POST(request: NextRequest) {
       .eq('user_id', user.id)
       .single()
 
-    logger.log('Chat API - Agent query result:', { 
-      agentId: agent?.id, 
-      agentName: agent?.name,
-      hasError: !!agentError
-    })
+    logger.log('Chat API - Agent query result:', { agent, agentError })
 
     if (agentError || !agent) {
-      logger.log('Chat API - Agent not found:', { hasError: !!agentError, hasAgent: !!agent })
+      logger.log('Chat API - Agent not found:', { agentError, agent })
       return NextResponse.json({ error: 'Agent not found' }, { status: 404 })
     }
 
@@ -68,7 +59,15 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Skip redundant integrations fetch - we'll get documents directly from agent_documents
+    // Get document IDs associated with integrations attached to agent
+    const { data: integrations, error: integrationsError } = await supabase
+      .from('integrations')
+      .select('id')
+      .in('id', agent.integration_ids)
+
+    if (integrationsError) {
+      return NextResponse.json({ error: 'Failed to fetch integrations' }, { status: 500 })
+    }
 
     // Get documents associated with this agent through the agent_documents table
     const { data: documents, error: documentIdsError } = await supabase

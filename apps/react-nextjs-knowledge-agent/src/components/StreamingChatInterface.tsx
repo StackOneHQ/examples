@@ -130,7 +130,6 @@ export function StreamingChatInterface({ agentId }: StreamingChatInterfaceProps)
   const [isStreaming, setIsStreaming] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const [threads, setThreads] = useState<Thread[]>([])
-  const textareaRef = useRef<HTMLTextAreaElement>(null)
   const [currentThreadId, setCurrentThreadId] = useState<string | null>(null)
   const [threadsDrawerVisible, setThreadsDrawerVisible] = useState(false)
   const [editingThread, setEditingThread] = useState<Thread | null>(null)
@@ -1542,7 +1541,7 @@ export function StreamingChatInterface({ agentId }: StreamingChatInterfaceProps)
                   disabled={isStreaming}
                   loading={isStreaming}
                   onClick={() => {
-                    const textarea = textareaRef.current
+                    const textarea = document.querySelector('textarea') as HTMLTextAreaElement
                     if (textarea && textarea.value.trim()) {
                       const text = textarea.value.trim()
                       const newMessage: Message = {
@@ -1643,7 +1642,7 @@ export function StreamingChatInterface({ agentId }: StreamingChatInterfaceProps)
                 disabled={isStreaming}
                 loading={isStreaming}
                 onClick={() => {
-                  const textarea = textareaRef.current
+                  const textarea = document.querySelector('textarea') as HTMLTextAreaElement
                   if (textarea && textarea.value.trim()) {
                     const text = textarea.value.trim()
                     const newMessage: Message = {

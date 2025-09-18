@@ -9,6 +9,6 @@
 
 .loadingText {
   font-size: 16px;
-  color: var(--ant-color-text-secondary, #707070);
-  font-family: var(--ant-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif);
+  color: #707070;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
 }
