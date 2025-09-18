@@ -54,27 +54,23 @@ async function handleGenericOAuthCallback(request: NextRequest) {
 
     // For GET requests, redirect to StackOne
     if (method === 'GET') {
-      // Create redirect response
-      const redirectResponse = NextResponse.redirect(stackoneUrl.toString());
-      
-      // Forward all cookies from the incoming request to the redirect response
-      request.headers.get('cookie')?.split(';').forEach(cookie => {
-        const trimmedCookie = cookie.trim();
-        if (trimmedCookie) {
-          redirectResponse.headers.append('Set-Cookie', trimmedCookie);
-        }
-      });
-      
-      return redirectResponse;
+      return NextResponse.redirect(stackoneUrl.toString());
     }
     
     // For POST requests, forward the request to StackOne
     if (method === 'POST') {
-      // Forward all headers from the incoming request
+      // Forward only end-to-end headers from the incoming request
       const forwardHeaders: Record<string, string> = {};
       request.headers.forEach((value, key) => {
-        // Skip host header as it should be set by fetch
-        if (key.toLowerCase() !== 'host') {
+        const lowerKey = key.toLowerCase();
+        
+        // Skip hop-by-hop headers that should not be forwarded
+        const hopByHopHeaders = [
+          'host', 'connection', 'keep-alive', 'proxy-authenticate', 'proxy-authorization',
+          'te', 'trailers', 'transfer-encoding', 'upgrade', 'content-length', 'content-encoding'
+        ];
+        
+        if (!hopByHopHeaders.includes(lowerKey)) {
           forwardHeaders[key] = value;
         }
       });
@@ -89,11 +85,24 @@ async function handleGenericOAuthCallback(request: NextRequest) {
       // Forward the response from StackOne
       const responseBody = await response.text();
       
-      // Forward all upstream response headers (including cookies)
+      // Forward only end-to-end headers from upstream response
       const responseHeaders = new Headers();
       response.headers.forEach((value, key) => {
+        const lowerKey = key.toLowerCase();
+        
+        // Skip hop-by-hop headers and content headers after response.text()
+        const hopByHopHeaders = [
+          'connection', 'keep-alive', 'proxy-authenticate', 'proxy-authorization',
+          'te', 'trailers', 'transfer-encoding', 'upgrade', 'content-length', 
+          'content-encoding', 'content-type'
+        ];
+        
+        if (hopByHopHeaders.includes(lowerKey)) {
+          return;
+        }
+        
         // For Set-Cookie headers, we need to append each one individually
-        if (key.toLowerCase() === 'set-cookie') {
+        if (lowerKey === 'set-cookie') {
           responseHeaders.append(key, value);
         } else {
           responseHeaders.set(key, value);

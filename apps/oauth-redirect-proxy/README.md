@@ -89,9 +89,9 @@ npm run build
 ## API Endpoints
 
 - `GET/POST /connect/oauth2/{provider}/callback` - Provider-specific OAuth redirect handler
-  - GET requests: Redirects to StackOne with query parameters and forwards all cookies
-  - POST requests: Forwards request body, all headers, and cookies to StackOne
-  - Response: Forwards all response headers and cookies back to the client
+  - GET requests: Redirects to StackOne with query parameters (cookies are automatically included by the browser)
+  - POST requests: Forwards request body and end-to-end headers to StackOne
+  - Response: Forwards end-to-end response headers and cookies back to the client
 
 - `GET/POST /connect/oauth2/callback` - Generic OAuth redirect handler (no provider specified)
   - Same functionality as above but forwards to StackOne's generic callback endpoint
