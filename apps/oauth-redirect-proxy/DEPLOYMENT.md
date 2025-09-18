@@ -49,9 +49,9 @@
 
 ## Example Usage
 
-If your deployed app is at `https://your-app.vercel.app` and you want to use `myapp.com` as your domain:
+If your deployed app is at `https://your-app.vercel.app` and you want to use `yourdomain.com` as your domain:
 
-1. **Construct the redirect URL**: `https://myapp.com/connect/oauth2/google/callback`
+1. **Construct the redirect URL**: `https://yourdomain.com/connect/oauth2/google/callback`
 2. **Configure this URL** in your OAuth app settings
 3. **When OAuth providers redirect** to this URL, it will automatically forward to StackOne
 
@@ -66,7 +66,7 @@ To use your own domain instead of the Vercel subdomain:
 
 2. **Update your OAuth app configuration:**
    - Use your custom domain in the redirect URL
-   - Example: `https://myapp.com/connect/oauth2/google/callback`
+   - Example: `https://yourdomain.com/connect/oauth2/google/callback`
 
 ## Troubleshooting
 

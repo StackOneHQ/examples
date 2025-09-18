@@ -3,16 +3,9 @@ import { NextRequest, NextResponse } from 'next/server';
 // Force dynamic rendering for this route
 export const dynamic = 'force-dynamic';
 
-async function handleOAuthCallback(
-  request: NextRequest,
-  { params }: { params: { provider: string } }
-) {
+async function handleGenericOAuthCallback(request: NextRequest) {
   try {
-    const { provider } = params;
     const method = request.method;
-    
-    // Security: Encode provider to prevent path injection
-    const encodedProvider = encodeURIComponent(provider);
     
     // Get all query parameters from the incoming request
     const searchParams = request.nextUrl.searchParams;
@@ -39,8 +32,7 @@ async function handleOAuthCallback(
     });
     
     // Log the incoming request for debugging (sanitized)
-    console.log('OAuth redirect received:', {
-      provider: encodedProvider,
+    console.log('Generic OAuth redirect received:', {
       method,
       searchParams: sanitizedParams,
       bodyLength: body ? body.length : 0,
@@ -48,8 +40,9 @@ async function handleOAuthCallback(
       timestamp: new Date().toISOString()
     });
     
-    // Build the redirect URL to StackOne with the encoded provider and all original query parameters
-    const stackoneUrl = new URL(`https://api.stackone.com/connect/oauth2/${encodedProvider}/callback`);
+    // Build the redirect URL to StackOne with all original query parameters
+    // Note: This route doesn't specify a provider, so we'll use a generic callback
+    const stackoneUrl = new URL('https://api.stackone.com/connect/oauth2/callback');
     
     // Copy all query parameters to the StackOne URL
     searchParams.forEach((value, key) => {
@@ -57,7 +50,7 @@ async function handleOAuthCallback(
     });
 
     // Security: Log only non-sensitive info
-    console.log('Redirecting to StackOne for provider:', encodedProvider);
+    console.log('Redirecting to StackOne generic callback');
 
     // For GET requests, redirect to StackOne
     if (method === 'GET') {
@@ -117,7 +110,7 @@ async function handleOAuthCallback(
     return new NextResponse('Method not allowed', { status: 405 });
     
   } catch (error) {
-    console.error('OAuth redirect error:', error);
+    console.error('Generic OAuth redirect error:', error);
     
     // Return a simple error response
     return new NextResponse(
@@ -132,16 +125,10 @@ async function handleOAuthCallback(
   }
 }
 
-export async function GET(
-  request: NextRequest,
-  context: { params: { provider: string } }
-) {
-  return handleOAuthCallback(request, context);
+export async function GET(request: NextRequest) {
+  return handleGenericOAuthCallback(request);
 }
 
-export async function POST(
-  request: NextRequest,
-  context: { params: { provider: string } }
-) {
-  return handleOAuthCallback(request, context);
+export async function POST(request: NextRequest) {
+  return handleGenericOAuthCallback(request);
 }

@@ -15,7 +15,9 @@ A simple HTTP proxy that forwards OAuth redirects to StackOne. This solves the p
 - 🚀 **One-click Vercel deployment**
 - 🔗 **Custom domain support** - Works with any domain via Vercel
 - 🔄 **Automatic StackOne forwarding** - Forwards OAuth callbacks to StackOne
-- 📝 **Simple pass-through** - No UI, just HTTP request forwarding
+- 📝 **Pure API proxy** - No frontend, no React, just HTTP request forwarding
+- ⚡ **Ultra-lean** - Minimal dependencies, zero frontend overhead
+- 🔄 **Complete header forwarding** - Passes through all headers and cookies
 - 🔍 **Request logging** - Logs incoming requests for debugging
 
 ## How it works
@@ -51,21 +53,18 @@ A simple HTTP proxy that forwards OAuth redirects to StackOne. This solves the p
 
 ## Examples
 
-If your domain is `myapp.com`, use these redirect URLs for different providers:
+If your domain is `yourdomain.com`, you can use either URL pattern:
 
-**Google:**
+**Provider-specific URLs:**
 ```
-https://myapp.com/connect/oauth2/google/callback
-```
-
-**Microsoft:**
-```
-https://myapp.com/connect/oauth2/microsoft/callback
+https://yourdomain.com/connect/oauth2/google/callback
+https://yourdomain.com/connect/oauth2/microsoft/callback
+https://yourdomain.com/connect/oauth2/slack/callback
 ```
 
-**Slack:**
+**Generic URL (for testing or when provider is determined by StackOne):**
 ```
-https://myapp.com/connect/oauth2/slack/callback
+https://yourdomain.com/connect/oauth2/callback
 ```
 
 These URLs will automatically forward all OAuth callbacks to StackOne's endpoint while satisfying OAuth provider requirements for domain verification.
@@ -89,7 +88,11 @@ npm run build
 
 ## API Endpoints
 
-- `GET /` - Simple info page explaining the proxy
-- `GET/POST /connect/oauth2/{provider}/callback` - OAuth redirect handler (forwards to StackOne)
-  - GET requests: Redirects to StackOne with query parameters
-  - POST requests: Forwards request body and content-type/user-agent headers to StackOne
+- `GET/POST /connect/oauth2/{provider}/callback` - Provider-specific OAuth redirect handler
+  - GET requests: Redirects to StackOne with query parameters and forwards all cookies
+  - POST requests: Forwards request body, all headers, and cookies to StackOne
+  - Response: Forwards all response headers and cookies back to the client
+
+- `GET/POST /connect/oauth2/callback` - Generic OAuth redirect handler (no provider specified)
+  - Same functionality as above but forwards to StackOne's generic callback endpoint
+  - Useful for testing or when provider is determined by StackOne
