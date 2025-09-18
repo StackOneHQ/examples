@@ -6,20 +6,22 @@ import React, { ReactNode } from 'react'
 // Create type-asserted component
 const TypographyConfigProvider = ConfigProvider as any
 
-// Suppress Ant Design React version compatibility warnings
-const originalWarn = console.warn
-console.warn = (...args) => {
-  const warningMessage = args[0]
-  if (typeof warningMessage === 'string' && 
-      (warningMessage.includes('[antd: compatible]') || 
-       warningMessage.includes('antd v5 support React') ||
-       warningMessage.includes('React is 16 ~ 18') ||
-       warningMessage.includes('antd v5 support React is 16 ~ 18') ||
-       warningMessage.includes('see https://u.ant.design/v5-for-19') ||
-       warningMessage.includes('antd v5 support React is 16 ~ 18. see https://u.ant.design/v5-for-19'))) {
-    return
+// Suppress Ant Design React version compatibility warnings in development only
+if (process.env.NODE_ENV === 'development') {
+  const originalWarn = console.warn
+  console.warn = (...args) => {
+    const warningMessage = args[0]
+    if (typeof warningMessage === 'string' && 
+        (warningMessage.includes('[antd: compatible]') || 
+         warningMessage.includes('antd v5 support React') ||
+         warningMessage.includes('React is 16 ~ 18') ||
+         warningMessage.includes('antd v5 support React is 16 ~ 18') ||
+         warningMessage.includes('see https://u.ant.design/v5-for-19') ||
+         warningMessage.includes('antd v5 support React is 16 ~ 18. see https://u.ant.design/v5-for-19'))) {
+      return
+    }
+    originalWarn.apply(console, args)
   }
-  originalWarn.apply(console, args)
 }
 
 const antdTheme = {

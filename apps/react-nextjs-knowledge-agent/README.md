@@ -22,7 +22,7 @@ A Next.js application that demonstrates how to build AI-powered document chat us
 1. **Clone and Install**
    ```bash
    git clone <repository-url>
-   cd react-nextjs-knowledge-agent
+   cd apps/react-nextjs-knowledge-agent
    npm install
    ```
 
@@ -35,7 +35,7 @@ A Next.js application that demonstrates how to build AI-powered document chat us
    ```bash
    # Supabase
    NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your_supabase_publishable_key
    
    # Azure OpenAI
    AZURE_OPENAI_KEY=your_api_key
@@ -212,7 +212,7 @@ This architecture provides several key advantages for building document AI appli
 #### **⚡ Scalable Processing**
 - **Vector Search**: Efficient similarity search using pgvector for large document collections
 - **Chunking Strategy**: Optimized document splitting for better RAG performance
-- **Real-time Updates**: Webhook integration keeps documents synchronized
+- **Real-time Updates**: Document synchronization through API polling
 
 #### **🛡️ Production Ready**
 - **Multi-tenant Security**: Row-level security ensures data isolation between users

@@ -15,9 +15,9 @@ export default function Home() {
       
       // Redirect based on authentication status
       if (user) {
-        router.push('/dashboard')
+        router.replace('/dashboard')
       } else {
-        router.push('/login')
+        router.replace('/login')
       }
     }
     getUser()

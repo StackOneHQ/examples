@@ -16,12 +16,12 @@ const nextConfig: NextConfig = {
   // Suppress console warnings in production
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production' ? {
-      exclude: ['error', 'warn']
+      exclude: ['error']
     } : false,
   },
-  // Temporarily ignore TypeScript errors for build
+  // Enable TypeScript error checking for better code quality
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false,
   },
 };
 

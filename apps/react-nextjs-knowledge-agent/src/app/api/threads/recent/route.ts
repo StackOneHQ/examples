@@ -17,7 +17,13 @@ export async function GET(request: NextRequest) {
     const { data: threads, error } = await supabase
       .from('threads')
       .select(`
-        *,
+        id,
+        title,
+        status,
+        message_count,
+        last_message_at,
+        created_at,
+        updated_at,
         agents!inner(
           id,
           name,

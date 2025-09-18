@@ -6,10 +6,11 @@ import 'bootstrap-icons/font/bootstrap-icons.css'
 import '@llamaindex/chat-ui/styles/markdown.css'
 import '@llamaindex/chat-ui/styles/pdf.css'
 import '@llamaindex/chat-ui/styles/editor.css'
-import '@/lib/suppress-antd-warnings'
+// Warning suppression is handled in ThemeProvider
 import { ThemeProvider } from '@/components/ThemeProvider'
 import { App } from 'antd'
 import ClientLayout from '@/components/ClientLayout'
+import Script from 'next/script'
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -38,7 +39,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <script
+        <Script
+          id="suppress-antd-warnings"
+          strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
             __html: `
               (function() {

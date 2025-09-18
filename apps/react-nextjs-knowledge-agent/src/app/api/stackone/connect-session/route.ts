@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { origin_owner_id, origin_owner_name, provider, account_id, multiple } = await request.json()
+    const { provider, account_id, multiple } = await request.json()
 
     const STACKONE_API_KEY = process.env.STACKONE_API_KEY
     if (!STACKONE_API_KEY) {
@@ -31,12 +31,12 @@ export async function POST(request: NextRequest) {
       user_id: user.id 
     }
 
-    // Prepare payload for StackOne API - aligned with ATS example
+    // Prepare payload for StackOne API - derive owner info from authenticated user only
     const payload = {
       expires_in: 1800, // 30 minutes
       multiple: multiple || false,
-      origin_owner_id: origin_owner_id || user.id,
-      origin_owner_name: origin_owner_name || user.email || user.id,
+      origin_owner_id: user.id, // Always use authenticated user ID
+      origin_owner_name: user.email || user.id, // Always use authenticated user email/ID
       provider: provider || undefined,
       account_id: account_id || undefined,
       metadata,

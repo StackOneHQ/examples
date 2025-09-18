@@ -22,10 +22,13 @@ export async function GET() {
     health.services.azureOpenAI.status = isHealthy ? 'healthy' : 'unhealthy'
   } catch (error) {
     health.services.azureOpenAI.status = 'unhealthy'
-    health.services.azureOpenAI.error = error instanceof Error ? error.message : 'Unknown error'
+    health.services.azureOpenAI.error = process.env.NODE_ENV === 'development' 
+      ? (error instanceof Error ? error.message : 'Unknown error')
+      : 'Service unavailable'
   }
 
   const overallStatus = health.services.azureOpenAI.status === 'healthy' ? 'ok' : 'degraded'
+  health.status = overallStatus
   
   return NextResponse.json(health, { 
     status: overallStatus === 'ok' ? 200 : 503 

@@ -18,6 +18,18 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Account ID is required' }, { status: 400 })
     }
 
+    // Verify ownership: Check if the account belongs to the authenticated user
+    const { data: integration, error: integrationError } = await supabase
+      .from('integrations')
+      .select('id, stackone_account_id')
+      .eq('user_id', user.id)
+      .eq('stackone_account_id', accountId)
+      .single()
+
+    if (integrationError || !integration) {
+      return NextResponse.json({ error: 'Account not found or access denied' }, { status: 404 })
+    }
+
     // Get StackOne API key from environment
     const apiKey = process.env.STACKONE_API_KEY
     if (!apiKey) {

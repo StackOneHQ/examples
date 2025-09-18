@@ -7,6 +7,9 @@ import { useRouter, usePathname } from 'next/navigation'
 import StackOneSidebar from './StackOneSidebar'
 import styles from './ClientLayout.module.css'
 
+// Create Supabase client outside component to prevent re-creation on every render
+const supabase = createClient()
+
 interface ClientLayoutProps {
   children: React.ReactNode
 }
@@ -15,7 +18,6 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
-  const supabase = createClient()
   const router = useRouter()
   const pathname = usePathname()
 

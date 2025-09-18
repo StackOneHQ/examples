@@ -14,9 +14,8 @@ export const config = {
      * - favicon.ico (favicon file)
      * - api/health (health check endpoint)
      * - api/stackone/connectors (public connector metadata)
-     * - api/stackone/webhook (webhook endpoint)
      * - Static assets (images, etc.)
      */
-    '/((?!_next/static|_next/image|favicon.ico|api/health|api/stackone/connectors|api/stackone/webhook|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|api/health|api/stackone/connectors|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }

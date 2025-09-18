@@ -54,7 +54,27 @@ export async function PUT(
     }
 
     const { id: threadId } = await params
-    const { title, status } = await request.json()
+    
+    // Validate request body
+    let requestBody
+    try {
+      requestBody = await request.json()
+    } catch (error) {
+      return NextResponse.json({ error: 'Invalid JSON in request body' }, { status: 400 })
+    }
+    
+    const { title, status } = requestBody
+    
+    // Validate allowed fields
+    const allowedFields = ['title', 'status']
+    const providedFields = Object.keys(requestBody)
+    const invalidFields = providedFields.filter(field => !allowedFields.includes(field))
+    
+    if (invalidFields.length > 0) {
+      return NextResponse.json({ 
+        error: `Invalid fields: ${invalidFields.join(', ')}. Allowed fields: ${allowedFields.join(', ')}` 
+      }, { status: 400 })
+    }
 
     // Verify thread belongs to user
     const { data: existingThread, error: fetchError } = await supabase
