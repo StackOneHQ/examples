@@ -200,6 +200,66 @@ graph TB
 - **Document Processing**: StackOne Documents API
 - **UI**: Ant Design + custom components
 
+### **Architecture Benefits**
+
+This architecture provides several key advantages for building document AI applications:
+
+#### **🔗 Unified Integration**
+- **Single API**: Access documents from multiple cloud providers through one interface
+- **Consistent Experience**: Same authentication and file selection flow across all providers
+- **Reduced Complexity**: No need to implement provider-specific OAuth flows or APIs
+
+#### **⚡ Scalable Processing**
+- **Vector Search**: Efficient similarity search using pgvector for large document collections
+- **Chunking Strategy**: Optimized document splitting for better RAG performance
+- **Real-time Updates**: Webhook integration keeps documents synchronized
+
+#### **🛡️ Production Ready**
+- **Multi-tenant Security**: Row-level security ensures data isolation between users
+- **Error Handling**: Comprehensive error management and retry logic
+- **Monitoring**: Built-in logging and performance tracking
+
+### **Cloud Stack Flexibility**
+
+This architecture is designed to work with different cloud providers and deployment strategies:
+
+#### **AWS Stack**
+```
+StackOne + AWS Bedrock + RDS PostgreSQL + Lambda + S3
+```
+- Replace Azure OpenAI with AWS Bedrock for AI services
+- Use RDS with pgvector extension for vector storage
+- Deploy on Lambda for serverless scaling
+
+#### **Google Cloud Stack**
+```
+StackOne + Vertex AI + Cloud SQL + Cloud Functions + Cloud Storage
+```
+- Use Vertex AI for embeddings and chat completions
+- Cloud SQL with pgvector for database needs
+- Cloud Functions for serverless deployment
+
+#### **Azure Stack**
+```
+StackOne + Azure OpenAI + Azure Database + Azure Functions + Blob Storage
+```
+- Current implementation uses Azure OpenAI
+- Azure Database for PostgreSQL with pgvector
+- Azure Functions for serverless compute
+
+#### **Custom/On-Premises Stack**
+```
+StackOne + Local LLM + Self-hosted PostgreSQL + Docker + MinIO
+```
+- Use Ollama or other local LLM solutions
+- Self-hosted PostgreSQL with pgvector
+- Containerized deployment with Docker
+- MinIO for S3-compatible object storage
+
+#### **Hybrid Approaches**
+- **Multi-Cloud**: Mix providers for different services (e.g., AWS for compute, Azure for AI)
+- **Edge Deployment**: Deploy closer to users with edge computing platforms
+- **Compliance Focused**: On-premises AI with cloud document storage for regulated industries
 
 ## 📱 Screenshots
 
