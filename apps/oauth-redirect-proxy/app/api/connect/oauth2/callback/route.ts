@@ -32,13 +32,16 @@ async function handleGenericOAuthCallback(request: NextRequest) {
     });
     
     // Log the incoming request for debugging (sanitized)
+    console.log('=== GENERIC OAUTH REDIRECT START ===');
     console.log('Generic OAuth redirect received:', {
       method,
       searchParams: sanitizedParams,
       bodyLength: body ? body.length : 0,
       userAgent: request.headers.get('user-agent')?.substring(0, 100) || 'unknown',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      url: request.url
     });
+    console.log('=== GENERIC OAUTH REDIRECT END ===');
     
     // Build the redirect URL to StackOne with all original query parameters
     // Note: This route doesn't specify a provider, so we'll use a generic callback
@@ -50,7 +53,10 @@ async function handleGenericOAuthCallback(request: NextRequest) {
     });
 
     // Security: Log only non-sensitive info
+    console.log('=== REDIRECT INFO ===');
     console.log('Redirecting to StackOne generic callback');
+    console.log('StackOne URL:', stackoneUrl.toString());
+    console.log('=== REDIRECT INFO END ===');
 
     // For GET requests, redirect to StackOne
     if (method === 'GET') {
