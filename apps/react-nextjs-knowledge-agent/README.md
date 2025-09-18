@@ -107,7 +107,6 @@ graph TB
     
     subgraph "☁️ Cloud Storage Providers"
         GD[Google Drive]
-        DB[Dropbox]
         OD[OneDrive]
         NT[Notion]
     end
@@ -131,17 +130,14 @@ graph TB
     
     %% StackOne integrations
     HUB --> GD
-    HUB --> DB
     HUB --> OD
     HUB --> NT
     
     PICKER --> GD
-    PICKER --> DB
     PICKER --> OD
     PICKER --> NT
     
     API --> GD
-    API --> DB
     API --> OD
     API --> NT
     
@@ -164,7 +160,7 @@ graph TB
     classDef user fill:#a29bfe,stroke:#6c5ce7,stroke-width:2px,color:#fff
     
     class HUB,PICKER,API stackone
-    class GD,DB,OD,NT cloud
+    class GD,OD,NT cloud
     class SUP,VEC database
     class AZURE,EMB,LLM ai
     class U,UI user

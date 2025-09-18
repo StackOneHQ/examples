@@ -83,36 +83,36 @@
 }
 
 /* Success alert styles */
-.alert :global(.ant-alert-success) {
+.alertSuccess {
   background-color: #f6ffed !important;
   border: 1px solid #b7eb8f !important;
   border-radius: 8px !important;
 }
 
-.alert :global(.ant-alert-success .ant-alert-message) {
+.alertSuccess .ant-alert-message {
   color: #389e0d !important;
   font-weight: 500 !important;
   font-size: 15px !important;
 }
 
-.alert :global(.ant-alert-success .ant-alert-icon) {
+.alertSuccess .ant-alert-icon {
   color: #52c41a !important;
 }
 
 /* Error alert styles */
-.alert :global(.ant-alert-error) {
+.alertError {
   background-color: #fff2f0 !important;
   border: 1px solid #ffccc7 !important;
   border-radius: 8px !important;
 }
 
-.alert :global(.ant-alert-error .ant-alert-message) {
+.alertError .ant-alert-message {
   color: #cf1322 !important;
   font-weight: 500 !important;
   font-size: 15px !important;
 }
 
-.alert :global(.ant-alert-error .ant-alert-icon) {
+.alertError .ant-alert-icon {
   color: #ff4d4f !important;
 }
 

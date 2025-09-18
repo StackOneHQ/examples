@@ -199,7 +199,7 @@ export default function LoginPage() {
 
         {/* Login Form Card */}
         <TypographyCard 
-          className={`stackone-card ${styles.formCard}`}
+          className={styles.formCard}
           styles={{ 
             body: { 
               padding: '40px 32px'
@@ -247,7 +247,7 @@ export default function LoginPage() {
               <TypographyAlert
                 message={messageParam}
                 type={getMessageType(messageParam)}
-                className={styles.alert}
+                className={`${styles.alert} ${getMessageType(messageParam) === 'success' ? styles.alertSuccess : styles.alertError}`}
               />
             )}
 

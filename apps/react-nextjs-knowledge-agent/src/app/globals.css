@@ -1,10 +1,5 @@
 @import "tailwindcss";
 
-/* LlamaIndex ChatMessage Integration Styles */
-.chat-message-container {
-  /* Ensure ChatMessage integrates well with our design */
-}
-
 .chat-message-container .chat-message {
   /* Override default ChatMessage styles to match our design */
   background: transparent !important;
