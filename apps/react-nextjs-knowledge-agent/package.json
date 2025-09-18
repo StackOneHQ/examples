@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "NODE_OPTIONS='--no-warnings' next dev --turbopack",
+    "dev": "NODE_OPTIONS='--no-warnings' next dev",
+    "dev:webpack": "NODE_OPTIONS='--no-warnings' next dev",
     "build": "NODE_OPTIONS='--no-warnings' next build",
     "start": "NODE_OPTIONS='--no-warnings' next start",
     "lint": "eslint"
