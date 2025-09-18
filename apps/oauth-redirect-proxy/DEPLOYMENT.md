@@ -1,0 +1,75 @@
+# Deployment Guide
+
+## Quick Deploy to Vercel (One-Click)
+
+1. **Click the deploy button below:**
+   [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FStackOneHQ%2Fexamples%2Ftree%2Fmain%2Fapps%2Foauth-redirect-proxy)
+
+2. **Configure your custom domain (optional):**
+   - After deployment, go to your Vercel dashboard
+   - Select your project
+   - Go to "Settings" → "Domains"
+   - Add your custom domain
+   - Follow the DNS configuration instructions
+
+## Manual Deployment Steps
+
+### Option 1: Deploy from GitHub
+
+1. **Fork this repository**
+2. **Go to [Vercel](https://vercel.com)**
+3. **Click "New Project"**
+4. **Import your forked repository**
+5. **Deploy!**
+
+### Option 2: Deploy from local files
+
+1. **Install Vercel CLI:**
+   ```bash
+   npm i -g vercel
+   ```
+
+2. **Navigate to the project directory:**
+   ```bash
+   cd apps/oauth-redirect-proxy
+   ```
+
+3. **Deploy:**
+   ```bash
+   vercel
+   ```
+
+4. **Follow the prompts** to configure your deployment
+
+## Using Your Deployed App
+
+1. **Visit your deployed app** (e.g., `https://your-app.vercel.app`)
+2. **Construct your redirect URL** using the format: `https://yourdomain.com/connect/oauth2/{provider}/callback`
+3. **Use this URL** as your OAuth redirect URI in your OAuth app configuration
+
+## Example Usage
+
+If your deployed app is at `https://your-app.vercel.app` and you want to use `myapp.com` as your domain:
+
+1. **Construct the redirect URL**: `https://myapp.com/connect/oauth2/google/callback`
+2. **Configure this URL** in your OAuth app settings
+3. **When OAuth providers redirect** to this URL, it will automatically forward to StackOne
+
+## Custom Domain Setup
+
+To use your own domain instead of the Vercel subdomain:
+
+1. **Add your domain in Vercel:**
+   - Go to project settings
+   - Add domain under "Domains" section
+   - Follow DNS configuration instructions
+
+2. **Update your OAuth app configuration:**
+   - Use your custom domain in the redirect URL
+   - Example: `https://myapp.com/connect/oauth2/google/callback`
+
+## Troubleshooting
+
+- **Domain not working?** Make sure DNS records are properly configured
+- **OAuth not redirecting?** Check that your OAuth app is configured with the correct redirect URL
+- **StackOne integration issues?** Verify that the redirect URL follows the correct format: `https://yourdomain.com/connect/oauth2/{provider}/callback`
