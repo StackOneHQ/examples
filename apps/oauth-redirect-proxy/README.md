@@ -71,12 +71,7 @@ docker run -p 3000:3000 oauth-redirect-proxy
 
 If your domain is `yourdomain.com`, use the provider-specific URL pattern:
 
-**Provider-specific URLs:**
-```
-https://yourdomain.com/connect/oauth2/google/callback
-https://yourdomain.com/connect/oauth2/microsoft/callback
-https://yourdomain.com/connect/oauth2/slack/callback
-```
+As an example, for the Google Drive integration this will be `https://yourdomain.com/connect/oauth2/googledrive/callback`.
 
 These URLs will automatically forward all OAuth callbacks to StackOne's endpoint while satisfying OAuth provider requirements for domain verification.
 

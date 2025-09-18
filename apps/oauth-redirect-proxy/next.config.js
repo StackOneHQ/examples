@@ -6,10 +6,6 @@ const nextConfig = {
         source: '/connect/oauth2/:provider/callback',
         destination: '/api/connect/oauth2/:provider/callback',
       },
-      {
-        source: '/connect/oauth2/callback',
-        destination: '/api/connect/oauth2/callback',
-      },
     ];
   },
 };
