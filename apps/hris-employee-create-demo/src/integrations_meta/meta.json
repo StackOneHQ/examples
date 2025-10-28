@@ -1,0 +1,32 @@
+[
+    {
+        "provider": "ukgpro",
+        "logo_url": "https://app.stackone.com/assets/logos/ukgpro.png",
+        "name": "UKG Pro"
+    },
+    {
+        "provider": "workday",
+        "logo_url": "https://app.stackone.com/assets/logos/workday.png",
+        "name": "workday"
+    },
+    {
+        "provider": "adpworkforcenow",
+        "logo_url": "https://app.stackone.com/assets/logos/adpworkforcenow.png",
+        "name": "ADP Workforce Now"
+    },
+    {
+        "provider": "sapsuccessfactors",
+        "logo_url": "https://app.stackone.com/assets/logos/sapsuccessfactors.png",
+        "name": "SAP SuccessFactors"
+    },
+    {
+        "provider": "hibob",
+        "logo_url": "https://app.stackone.com/assets/logos/hibob.png",
+        "name": "HiBob"
+    },
+    {
+        "provider": "personio",
+        "logo_url": "https://app.stackone.com/assets/logos/personio.png",
+        "name": "Personio"
+    }
+]

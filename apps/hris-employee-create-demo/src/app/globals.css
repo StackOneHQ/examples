@@ -1,0 +1,144 @@
+/* Critical CSS - Load first */
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+}
+
+body {
+  background-color: #fafafa;
+  color: #202020;
+  line-height: 1.5;
+}
+
+/* Ant Design Reset - Load after critical styles */
+@import 'antd/dist/reset.css';
+
+/* Black checkbox styling */
+.black-checkbox.ant-checkbox-checked .ant-checkbox-inner {
+  background-color: #000000 !important;
+  border-color: #000000 !important;
+}
+
+.black-checkbox.ant-checkbox-checked .ant-checkbox-inner::after {
+  border-color: #ffffff !important;
+}
+
+.black-checkbox.ant-checkbox:hover .ant-checkbox-inner {
+  border-color: #000000 !important;
+}
+
+.black-checkbox.ant-checkbox-checked:hover .ant-checkbox-inner {
+  background-color: #000000 !important;
+  border-color: #000000 !important;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
+  }
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.page-header {
+  margin-bottom: 24px;
+}
+
+.page-title {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.page-description {
+  color: #666;
+  font-size: 14px;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+  margin-top: 24px;
+}
+
+/* StackOne Card Styles */
+.stackone-card {
+  background: #ffffff;
+  border: 1px solid #f0f0f0;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+}
+
+.stackone-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* StackOne Statistic Styles */
+.stackone-statistic .ant-statistic-content {
+  color: #000000 !important;
+  font-size: 32px !important;
+  font-weight: 600 !important;
+}
+
+.stackone-statistic .ant-statistic-title {
+  color: #707070 !important;
+  font-size: 14px !important;
+  margin-bottom: 8px !important;
+}
+
+.form-section {
+  margin-bottom: 24px;
+}
+
+.form-section-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.required-field {
+  color: #ff4d4f;
+}
+
+.optional-fields-toggle {
+  margin-top: 16px;
+  margin-bottom: 16px;
+}
+
+.success-message {
+  margin-top: 16px;
+}
+
+.error-message {
+  margin-top: 16px;
+}
