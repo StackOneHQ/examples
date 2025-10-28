@@ -3,8 +3,8 @@ from stackone_ai import StackOneToolSet
 from typing import Dict, Any
 
 
-@tool("StackOne Tool Executor")
-def stackone_tool_executor(account_id: str, action: str, parameters: dict = None) -> str:
+@tool("StackOne Meta Tool Executor")
+def stackone_meta_execute_tool(account_id: str, action: str, parameters: dict = None) -> str:
     """
     Execute tools from StackOne.
     
@@ -42,8 +42,8 @@ def stackone_tool_executor(account_id: str, action: str, parameters: dict = None
         return f"Error executing StackOne tool: {str(e)}"
 
 
-@tool("StackOne List Tools")
-def stackone_list_tools(account_id: str) -> str:
+@tool("StackOne Meta Search Tools")
+def stackone_meta_search_tools(account_id: str) -> str:
     """
     List all available tools from StackOne for the given account.
     
