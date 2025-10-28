@@ -1,10 +1,6 @@
 from crewai.tools import tool
 from stackone_ai import StackOneToolSet
 from typing import Dict, Any
-import os
-
-# Set up API keys
-api_key = os.getenv("STACKONE_API_KEY")
 
 
 @tool("StackOne Tool Executor")
@@ -23,7 +19,7 @@ def stackone_tool_executor(account_id: str, action: str, parameters: dict = None
     try:
         # Initialize StackOneToolSet with API key from environment
         
-        toolset = StackOneToolSet(api_key=api_key)
+        toolset = StackOneToolSet()
         tools = toolset.get_tools("*", account_id=account_id)
         
         # If requesting all tools, return the list
@@ -59,7 +55,7 @@ def stackone_list_tools(account_id: str) -> str:
     """
     try:
         # Initialize StackOneToolSet with API key from environment
-        toolset = StackOneToolSet(api_key=api_key)
+        toolset = StackOneToolSet()
         tools = toolset.get_tools("*", account_id=account_id)
         
         tool_list = []
