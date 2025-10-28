@@ -4,7 +4,7 @@ from typing import Dict, Any
 
 
 @tool("StackOne Meta Tool Executor")
-def stackone_meta_execute_tool(filter: str = "*", account_id: str, action: str, parameters: dict = None) -> str:
+def stackone_meta_execute_tool(account_id: str, action: str, parameters: dict = None, filter: str = "*") -> str:
     """
     Execute tools from StackOne.
     
@@ -32,7 +32,7 @@ def stackone_meta_execute_tool(filter: str = "*", account_id: str, action: str, 
 
 
 @tool("StackOne Meta List Tools")
-def stackone_meta_list_tools(filter: str = "*", account_id: str) -> str:
+def stackone_meta_list_tools(account_id: str, filter: str = "*") -> str:
     """
     List all available tools from StackOne for the given account.
     
