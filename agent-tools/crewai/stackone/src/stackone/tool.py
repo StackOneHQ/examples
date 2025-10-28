@@ -20,30 +20,19 @@ def stackone_meta_execute_tool(account_id: str, action: str, parameters: dict = 
         # Initialize StackOneToolSet with API key from environment
         
         toolset = StackOneToolSet()
-        tools = toolset.get_tools("*", account_id=account_id)
-        
-        # If requesting all tools, return the list
-        if action == "*":
-            tool_names = [tool.get("name", "unknown") for tool in tools]
-            return f"Available StackOne tools: {', '.join(tool_names)}"
-        
-        # Find and execute the specific tool
-        for tool in tools:
-            if tool.get("name") == action or tool.get("identifier") == action:
-                if parameters:
-                    result = tool.execute(**parameters)
-                else:
-                    result = tool.execute()
-                return f"Tool '{action}' executed successfully: {result}"
-        
-        return f"Tool '{action}' not found in StackOne toolset."
+        tools = toolset.get_tools(account_id=account_id)
+        meta_tools = tools.meta_tools()
+
+        execute_tool = meta_tools.get_tool("meta_execute_tool")
+        result = execute_tool.call(toolName=action, params=parameters, account_id=account_id)
+        return result
         
     except Exception as e:
         return f"Error executing StackOne tool: {str(e)}"
 
 
-@tool("StackOne Meta Search Tools")
-def stackone_meta_search_tools(account_id: str) -> str:
+@tool("StackOne Meta List Tools")
+def stackone_meta_list_tools(account_id: str) -> str:
     """
     List all available tools from StackOne for the given account.
     
@@ -56,10 +45,20 @@ def stackone_meta_search_tools(account_id: str) -> str:
     try:
         # Initialize StackOneToolSet with API key from environment
         toolset = StackOneToolSet()
-        tools = toolset.get_tools("*", account_id=account_id)
+        tools = toolset.get_tools("*", account_id=account_id).meta_tools()
+        
+        # Debug: print the tools object and its type
+        print(f"Debug - tools type: {type(tools)}")
+        print(f"Debug - tools content: {tools}")
+        print(f"Debug - tools dir: {dir(tools)}")
+        if hasattr(tools, '__iter__'):
+            print(f"Debug - tools is iterable, iterating...")
         
         tool_list = []
+
         for tool in tools:
+            # Debug: print each tool
+            print(f"Debug - tool type: {type(tool)}, tool: {tool}")
             tool_info = {
                 "name": tool.get("name", "unknown"),
                 "description": tool.get("description", "No description"),
@@ -70,3 +69,20 @@ def stackone_meta_search_tools(account_id: str) -> str:
         
     except Exception as e:
         return f"Error listing StackOne tools: {str(e)}"
+
+@tool("StackOne Meta Search Tools")
+def stackone_meta_search_tools(account_id: str, query: str) -> str:
+    """
+    Search for tools from StackOne for the given account.
+    
+    Args:
+        account_id: The StackOne account ID
+        query: The query to search for
+    """
+    try:
+        toolset = StackOneToolSet()
+        tools = toolset.get_tools("*", account_id=account_id)
+        filtered_tools = tools.meta_tools().get_tool("meta_search_tools").call(query=query, limit=5, account_id=account_id)
+        return f"Found {len(filtered_tools)} tools: {filtered_tools}"
+    except Exception as e:
+        return f"Error searching for StackOne tools: {str(e)}"
