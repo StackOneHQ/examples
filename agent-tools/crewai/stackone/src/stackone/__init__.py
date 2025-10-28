@@ -1,3 +1,3 @@
-from .tool import Stackone
+from .tool import stackone_tool_executor, stackone_list_tools
 
-__all__ = ["StackOne Tool Executor", "StackOne List Tools"]
+__all__ = ["stackone_tool_executor", "stackone_list_tools"]
