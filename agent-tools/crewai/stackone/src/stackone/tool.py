@@ -4,7 +4,7 @@ from typing import Dict, Any
 
 
 @tool("StackOne Meta Tool Executor")
-def stackone_meta_execute_tool(account_id: str, action: str, parameters: dict = None) -> str:
+def stackone_meta_execute_tool(filter: str = "*", account_id: str, action: str, parameters: dict = None) -> str:
     """
     Execute tools from StackOne.
     
@@ -20,7 +20,7 @@ def stackone_meta_execute_tool(account_id: str, action: str, parameters: dict = 
         # Initialize StackOneToolSet with API key from environment
         
         toolset = StackOneToolSet()
-        tools = toolset.get_tools(account_id=account_id)
+        tools = toolset.get_tools(filter, account_id=account_id)
         meta_tools = tools.meta_tools()
 
         execute_tool = meta_tools.get_tool("meta_execute_tool")
@@ -32,7 +32,7 @@ def stackone_meta_execute_tool(account_id: str, action: str, parameters: dict = 
 
 
 @tool("StackOne Meta List Tools")
-def stackone_meta_list_tools(account_id: str) -> str:
+def stackone_meta_list_tools(filter: str = "*", account_id: str) -> str:
     """
     List all available tools from StackOne for the given account.
     
@@ -45,7 +45,7 @@ def stackone_meta_list_tools(account_id: str) -> str:
     try:
         # Initialize StackOneToolSet with API key from environment
         toolset = StackOneToolSet()
-        tools = toolset.get_tools("*", account_id=account_id).meta_tools()
+        tools = toolset.get_tools(filter, account_id=account_id).meta_tools()
         
         # Debug: print the tools object and its type
         print(f"Debug - tools type: {type(tools)}")
@@ -71,7 +71,7 @@ def stackone_meta_list_tools(account_id: str) -> str:
         return f"Error listing StackOne tools: {str(e)}"
 
 @tool("StackOne Meta Search Tools")
-def stackone_meta_search_tools(account_id: str, query: str) -> str:
+def stackone_meta_search_tools(account_id: str, filter: str = "*", query: str = None) -> str:
     """
     Search for tools from StackOne for the given account.
     
@@ -81,7 +81,7 @@ def stackone_meta_search_tools(account_id: str, query: str) -> str:
     """
     try:
         toolset = StackOneToolSet()
-        tools = toolset.get_tools("*", account_id=account_id)
+        tools = toolset.get_tools(filter, account_id=account_id)
         filtered_tools = tools.meta_tools().get_tool("meta_search_tools").call(query=query, limit=5, account_id=account_id)
         return f"Found {len(filtered_tools)} tools: {filtered_tools}"
     except Exception as e:
