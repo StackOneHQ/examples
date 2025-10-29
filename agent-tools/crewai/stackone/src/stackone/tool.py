@@ -1,10 +1,12 @@
 from crewai.tools import tool
 from stackone_ai import StackOneToolSet
 from typing import Dict, Any
+from os import getenv
 
+filter: str = getenv("STACKONE_INTEGRATION_FILTER", "*")
 
 @tool("StackOne Meta Tool Executor")
-def stackone_meta_execute_tool(account_id: str, action: str, parameters: dict = None, filter: str = "*") -> str:
+def stackone_meta_execute_tool(account_id: str, action: str, parameters: dict = None) -> str:
     """
     Execute tools from StackOne.
     
@@ -32,7 +34,7 @@ def stackone_meta_execute_tool(account_id: str, action: str, parameters: dict = 
 
 
 @tool("StackOne Meta List Tools")
-def stackone_meta_list_tools(account_id: str, filter: str = "*") -> str:
+def stackone_meta_list_tools(account_id: str) -> str:
     """
     List all available tools from StackOne for the given account.
     
@@ -71,7 +73,7 @@ def stackone_meta_list_tools(account_id: str, filter: str = "*") -> str:
         return f"Error listing StackOne tools: {str(e)}"
 
 @tool("StackOne Meta Search Tools")
-def stackone_meta_search_tools(account_id: str, filter: str = "*", query: str = None) -> str:
+def stackone_meta_search_tools(account_id: str, query: str = None) -> str:
     """
     Search for tools from StackOne for the given account.
     
