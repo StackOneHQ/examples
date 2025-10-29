@@ -3,14 +3,6 @@ from stackone_ai import StackOneToolSet
 from typing import Dict, Any
 
 
-# Export all tools as a Stackone class/object for CrewAI compatibility
-class Stackone:
-    """StackOne tools collection for CrewAI"""
-    meta_execute_tool = None
-    meta_list_tools = None
-    meta_search_tools = None
-
-
 @tool("StackOne Meta Tool Executor")
 def stackone_meta_execute_tool(account_id: str, action: str, parameters: dict = None, filter: str = "*") -> str:
     """
@@ -96,7 +88,10 @@ def stackone_meta_search_tools(account_id: str, filter: str = "*", query: str = 
         return f"Error searching for StackOne tools: {str(e)}"
 
 
-# Assign tools to Stackone class for CrewAI compatibility
-Stackone.meta_execute_tool = stackone_meta_execute_tool
-Stackone.meta_list_tools = stackone_meta_list_tools
-Stackone.meta_search_tools = stackone_meta_search_tools
+# Export Stackone as a list of tools for CrewAI compatibility
+# This allows CrewAI to import Stackone from stackone.tool
+Stackone = [
+    stackone_meta_execute_tool,
+    stackone_meta_list_tools,
+    stackone_meta_search_tools
+]
