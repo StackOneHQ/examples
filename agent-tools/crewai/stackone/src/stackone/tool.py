@@ -90,12 +90,13 @@ def stackone_meta_search_tools(account_id: str, query: str = None) -> str:
         return f"Error searching for StackOne tools: {str(e)}"
 
 
-# Export Stackone as a callable function that returns tools for CrewAI compatibility
-# This allows CrewAI to import Stackone from stackone.tool and call Stackone()
+# Export Stackone - use *Stackone() to unpack tools or import tools individually
+# For CrewAI, use: tools=[stackone_meta_execute_tool, stackone_meta_list_tools, stackone_meta_search_tools]
+# Or: tools=[*Stackone()] to unpack all tools
 def Stackone():
-    """Returns a list of StackOne tools for CrewAI"""
-    return [
+    """Returns a tuple of StackOne tools for CrewAI (use *Stackone() to unpack)"""
+    return (
         stackone_meta_execute_tool,
         stackone_meta_list_tools,
         stackone_meta_search_tools
-    ]
+    )
