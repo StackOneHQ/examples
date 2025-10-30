@@ -1,7 +1,15 @@
 from typing import Any, Sequence, Optional
 from pydantic import BaseModel, Field
 from langchain_core.tools import BaseTool
-from langchain_core.parameters import ParameterLocation
+
+class ParameterLocation(str, Enum):
+    """Valid locations for parameters in requests"""
+
+    HEADER = "header"
+    QUERY = "query"
+    PATH = "path"
+    BODY = "body"
+    FILE = "file"  # For file uploads
 
 def to_langchain(self) -> BaseTool:
         """Convert this tool to LangChain format
