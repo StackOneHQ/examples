@@ -1,12 +1,10 @@
 from os import getenv
 from typing import Sequence
 
-from crewai.tools import tool
 from stackone_ai import StackOneToolSet
 
 from .models import to_crewai
 
-@tool("StackOne")
 def Stackone(account_id: str, integration_filter: str | None = None) -> Sequence[object]:
     """
     Return CrewAI-compatible tool instances generated from StackOne tools.
