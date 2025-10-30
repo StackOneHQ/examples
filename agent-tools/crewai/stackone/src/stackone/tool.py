@@ -29,7 +29,7 @@ class StackoneSearchToolsInput(BaseModel):
 class StackoneExecuteTool(BaseTool):
     name: str = "StackOne Execute Tool"
     description: str = "Execute a specific StackOne tool by name or identifier"
-    args_schema = StackoneExecuteToolInput
+    args_schema: type[BaseModel] = StackoneExecuteToolInput
 
     def _run(self, account_id: str, action: str, parameters: Optional[dict] = None) -> str:
         try:
@@ -45,7 +45,7 @@ class StackoneExecuteTool(BaseTool):
 class StackoneListTools(BaseTool):
     name: str = "StackOne List Tools"
     description: str = "List available StackOne tools for the given account"
-    args_schema = StackoneListToolsInput
+    args_schema: type[BaseModel] = StackoneListToolsInput
 
     def _run(self, account_id: str) -> str:
         try:
@@ -61,7 +61,7 @@ class StackoneListTools(BaseTool):
 class StackoneSearchTools(BaseTool):
     name: str = "StackOne Search Tools"
     description: str = "Search for StackOne tools matching a query"
-    args_schema = StackoneSearchToolsInput
+    args_schema: type[BaseModel] = StackoneSearchToolsInput
 
     def _run(self, account_id: str, query: Optional[str] = None, limit: int = 5) -> str:
         try:
