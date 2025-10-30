@@ -1,102 +1,19 @@
-from crewai.tools import tool
-from stackone_ai import StackOneToolSet
-from typing import Dict, Any
 from os import getenv
+from typing import Sequence
 
-filter: str = getenv("STACKONE_INTEGRATION_FILTER", "*")
+from stackone_ai import StackOneToolSet
 
-@tool("StackOne Meta Tool Executor")
-def stackone_meta_execute_tool(account_id: str, action: str, parameters: dict = None) -> str:
+
+def Stackone(account_id: str, integration_filter: str | None = None) -> Sequence[object]:
     """
-    Execute tools from StackOne.
-    
-    Args:
-        account_id: The StackOne account ID to use
-        action: The action/tool to execute (use '*' to list all available tools)
-        parameters: Optional parameters to pass to the tool
-    
-    Returns:
-        The result of executing the StackOne tool
+    Return CrewAI-compatible tool instances generated from StackOne tools.
+
+    Usage in CrewAI:
+      tools=[*Stackone(account_id)]  # unpack the returned sequence
     """
-    try:
-        # Initialize StackOneToolSet with API key from environment
-        
-        toolset = StackOneToolSet()
-        tools = toolset.get_tools(filter, account_id=account_id)
-        meta_tools = tools.meta_tools()
+    selected_filter = integration_filter or getenv("STACKONE_INTEGRATION_FILTER", "*")
 
-        execute_tool = meta_tools.get_tool("meta_execute_tool")
-        result = execute_tool.call(toolName=action, params=parameters, account_id=account_id)
-        return result
-        
-    except Exception as e:
-        return f"Error executing StackOne tool: {str(e)}"
+    toolset = StackOneToolSet()
+    tools = toolset.get_tools(selected_filter, account_id=account_id)
+    return tuple(tools.to_crewai())
 
-
-@tool("StackOne Meta List Tools")
-def stackone_meta_list_tools(account_id: str) -> str:
-    """
-    List all available tools from StackOne for the given account.
-    
-    Args:
-        account_id: The StackOne account ID
-    
-    Returns:
-        A list of available tools and their descriptions
-    """
-    try:
-        # Initialize StackOneToolSet with API key from environment
-        toolset = StackOneToolSet()
-        tools = toolset.get_tools(filter, account_id=account_id).meta_tools()
-        
-        # Debug: print the tools object and its type
-        print(f"Debug - tools type: {type(tools)}")
-        print(f"Debug - tools content: {tools}")
-        print(f"Debug - tools dir: {dir(tools)}")
-        if hasattr(tools, '__iter__'):
-            print(f"Debug - tools is iterable, iterating...")
-        
-        tool_list = []
-
-        for tool in tools:
-            # Debug: print each tool
-            print(f"Debug - tool type: {type(tool)}, tool: {tool}")
-            tool_info = {
-                "name": tool.get("name", "unknown"),
-                "description": tool.get("description", "No description"),
-            }
-            tool_list.append(tool_info)
-        
-        return f"Available tools: {tool_list}"
-        
-    except Exception as e:
-        return f"Error listing StackOne tools: {str(e)}"
-
-@tool("StackOne Meta Search Tools")
-def stackone_meta_search_tools(account_id: str, query: str = None) -> str:
-    """
-    Search for tools from StackOne for the given account.
-    
-    Args:
-        account_id: The StackOne account ID
-        query: The query to search for
-    """
-    try:
-        toolset = StackOneToolSet()
-        tools = toolset.get_tools(filter, account_id=account_id)
-        filtered_tools = tools.meta_tools().get_tool("meta_search_tools").call(query=query, limit=5, account_id=account_id)
-        return f"Found {len(filtered_tools)} tools: {filtered_tools}"
-    except Exception as e:
-        return f"Error searching for StackOne tools: {str(e)}"
-
-
-# Export Stackone - use *Stackone() to unpack tools or import tools individually
-# For CrewAI, use: tools=[stackone_meta_execute_tool, stackone_meta_list_tools, stackone_meta_search_tools]
-# Or: tools=[*Stackone()] to unpack all tools
-def Stackone():
-    """Returns a tuple of StackOne tools for CrewAI (use *Stackone() to unpack)"""
-    return (
-        stackone_meta_execute_tool,
-        stackone_meta_list_tools,
-        stackone_meta_search_tools
-    )
