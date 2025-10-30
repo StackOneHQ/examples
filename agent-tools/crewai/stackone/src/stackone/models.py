@@ -1,6 +1,7 @@
 from typing import Any, Sequence, Optional
 from pydantic import BaseModel, Field
 from langchain_core.tools import BaseTool
+from enum import Enum
 
 class ParameterLocation(str, Enum):
     """Valid locations for parameters in requests"""
