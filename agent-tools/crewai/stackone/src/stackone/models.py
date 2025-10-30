@@ -1,3 +1,8 @@
+from typing import Any, Sequence
+from pydantic import BaseModel, Field, Optional
+from langchain_core.tools import BaseTool
+from langchain_core.parameters import ParameterLocation
+
 def to_langchain(self) -> BaseTool:
         """Convert this tool to LangChain format
 
