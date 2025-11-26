@@ -66,12 +66,25 @@ async function handleOAuthCallback(
     
     // For POST requests, forward the request to StackOne
     if (method === 'POST') {
+      // Forward only end-to-end headers from the incoming request
+      const forwardHeaders: Record<string, string> = {};
+      request.headers.forEach((value, key) => {
+        const lowerKey = key.toLowerCase();
+        
+        // Skip hop-by-hop headers that should not be forwarded
+        const hopByHopHeaders = [
+          'host', 'connection', 'keep-alive', 'proxy-authenticate', 'proxy-authorization',
+          'te', 'trailers', 'transfer-encoding', 'upgrade', 'content-length', 'content-encoding'
+        ];
+        
+        if (!hopByHopHeaders.includes(lowerKey)) {
+          forwardHeaders[key] = value;
+        }
+      });
+      
       const response = await fetch(stackoneUrl.toString(), {
         method: 'POST',
-        headers: {
-          'Content-Type': request.headers.get('content-type') || 'application/x-www-form-urlencoded',
-          'User-Agent': request.headers.get('user-agent') || 'OAuth-Redirect-Proxy',
-        },
+        headers: forwardHeaders,
         body: body || undefined,
         redirect: 'manual', // Security: Disable auto-follow redirects to preserve upstream semantics
       });
@@ -79,10 +92,28 @@ async function handleOAuthCallback(
       // Forward the response from StackOne
       const responseBody = await response.text();
       
-      // Security: Forward all upstream response headers
+      // Forward only end-to-end headers from upstream response
       const responseHeaders = new Headers();
       response.headers.forEach((value, key) => {
-        responseHeaders.set(key, value);
+        const lowerKey = key.toLowerCase();
+        
+        // Skip hop-by-hop headers and content headers after response.text()
+        const hopByHopHeaders = [
+          'connection', 'keep-alive', 'proxy-authenticate', 'proxy-authorization',
+          'te', 'trailers', 'transfer-encoding', 'upgrade', 'content-length', 
+          'content-encoding', 'content-type'
+        ];
+        
+        if (hopByHopHeaders.includes(lowerKey)) {
+          return;
+        }
+        
+        // For Set-Cookie headers, we need to append each one individually
+        if (lowerKey === 'set-cookie') {
+          responseHeaders.append(key, value);
+        } else {
+          responseHeaders.set(key, value);
+        }
       });
       
       return new NextResponse(responseBody, {
