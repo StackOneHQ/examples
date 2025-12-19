@@ -1,135 +1,76 @@
-# Turborepo starter
+# StackOne - Examples
 
-This Turborepo starter is maintained by the Turborepo core team.
+Official code examples showing how to integrate with the StackOne Integration Gateway to develop integrated agents.
 
-## Using this example
+This repository contains **minimal, production-oriented examples** for common StackOne use cases.
 
-Run the following command:
+**This repo is for:**
+- Developers evaluating StackOne
+- Customers building their first integration
+- Reference implementations for specific integration flows
 
-```sh
-npx create-turbo@latest
-```
+**This repo is not:**
+- A full SDK
+- A framework or boilerplate
+- An exhaustive API reference
 
-## What's inside?
 
-This Turborepo includes the following packages/apps:
+## Examples included
 
-### Apps and Packages
+- **[OAuth Redirect Proxy](./apps/oauth-redirect-proxy/)** - A custom domain proxy for OAuth redirects that forwards callbacks to StackOne, solving the need for verified domains in OAuth app configurations
+- **[RAG Agent](./apps/react-nextjs-knowledge-agent/)** - A knowledge agent implementation using RAG (Retrieval-Augmented Generation) with StackOne integrations
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+## Languages
 
-### Utilities
+- **TypeScript** - All examples are written in TypeScript
+- **JavaScript/Node.js** - Runtime environment for all examples
 
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
+## Repository structure
 
 ```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
+examples/
+├── apps/                    # Example applications
+│   ├── oauth-redirect-proxy/    # OAuth redirect proxy example
+│   └── react-nextjs-knowledge-agent/  # RAG agent example
+├── packages/                # Shared configuration packages
+│   ├── eslint-config/       # Shared ESLint configurations
+│   └── typescript-config/   # Shared TypeScript configurations
+├── package.json             # Root package.json (Turborepo config)
+└── turbo.json              # Turborepo task configuration
 ```
 
-You can build a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
+Each app is **independent** and manages its own dependencies. There is no shared `package-lock.json` at the root level.
 
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build --filter=docs
+## Prerequisites
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-```
+- **Node.js** >= 18 (see [engines](./package.json#L16) in package.json)
+- **npm** >= 10.9.2 (or compatible package manager)
+- **StackOne account** - Sign up at [stackone.com](https://stackone.com) to get your API credentials
 
-### Develop
 
-To develop all apps and packages, run the following command:
 
-```
-cd my-turborepo
 
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev
+## Getting Started
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
+Install dependencies for a specific app:
+
+```bash
+cd apps/<app-name>
+npm install
 ```
 
-You can develop a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
+Run development commands from the root:
 
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev --filter=web
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
+```bash
+npm run dev    # Run all apps
+npm run build  # Build all apps
+npm run lint   # Lint all apps
 ```
 
-### Remote Caching
+## Related documentation
 
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
+- **[StackOne Documentation](https://docs.stackone.com)** - Complete API reference and integration guides
+- **[StackOne Integration Gateway](https://stackone.com)** - Learn more about StackOne's platform
+- **[OAuth Proxy Redirect Guide](https://docs.stackone.com/integration-guides/oauth-proxy-redirect)** - Detailed guide for OAuth redirect proxy setup
 
-Turborepo can use a technique known as [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo login
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo link
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.com/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.com/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.com/docs/reference/configuration)
-- [CLI Usage](https://turborepo.com/docs/reference/command-line-reference)
