@@ -1,11 +1,12 @@
 {
     "name": "stackone-typescript-agent",
     "version": "1.0.0",
+    "private": true,
     "description": "StackOne AI Agent Example using Vercel AI SDK with dynamic MCP tools",
     "type": "module",
     "scripts": {
       "agent": "tsx src/agent.ts",
-      "typecheck": "tsc --noEmit"
+      "check-types": "tsc --noEmit"
     },
     "dependencies": {
       "@ai-sdk/anthropic": "^1.0.0",
