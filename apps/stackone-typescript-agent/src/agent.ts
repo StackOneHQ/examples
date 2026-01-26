@@ -102,7 +102,7 @@ async function callTool(toolName: string, args: Record<string, unknown>): Promis
     accountId
   )) as { result?: unknown };
 
-  return result.result || result;
+  return result.result ?? result;
 }
 
 /**
