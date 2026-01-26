@@ -181,7 +181,7 @@ async function mcpRequest(
       Authorization: `Basic ${Buffer.from(STACKONE_API_KEY + ":").toString("base64")}`,
       "x-account-id": accountId,
       "Content-Type": "application/json",
-      Accept: "application/json, text/event-stream",
+      Accept: "application/json",
     },
     body: JSON.stringify({
       jsonrpc: "2.0",
