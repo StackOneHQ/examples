@@ -29,14 +29,125 @@ interface LinkedAccount {
   status: string;
 }
 
+/**
+ * JSON Schema type definition for MCP tool parameters
+ */
+interface JsonSchema {
+  type?: string | string[];
+  properties?: Record<string, JsonSchema>;
+  required?: string[];
+  items?: JsonSchema;
+  enum?: (string | number | boolean | null)[];
+  description?: string;
+  default?: unknown;
+  // Additional JSON Schema fields we might encounter
+  oneOf?: JsonSchema[];
+  anyOf?: JsonSchema[];
+  allOf?: JsonSchema[];
+  $ref?: string;
+}
+
 interface McpTool {
   name: string;
   description?: string;
-  inputSchema?: {
-    type?: string;
-    properties?: Record<string, unknown>;
-    required?: string[];
-  };
+  inputSchema?: JsonSchema;
+}
+
+/**
+ * Convert JSON Schema to Zod schema
+ * Handles common types and falls back to z.unknown() for unsupported cases
+ */
+function jsonSchemaToZod(schema: JsonSchema | undefined): z.ZodTypeAny {
+  if (!schema) {
+    return z.record(z.unknown());
+  }
+
+  // Handle enum first (can appear with or without type)
+  if (schema.enum && schema.enum.length > 0) {
+    const enumValues = schema.enum.filter((v): v is string => typeof v === "string");
+    if (enumValues.length > 0 && enumValues.length === schema.enum.length) {
+      const zodEnum = z.enum(enumValues as [string, ...string[]]);
+      return schema.description ? zodEnum.describe(schema.description) : zodEnum;
+    }
+    // For mixed enums, use union of literals
+    const literals = schema.enum.map((v) => z.literal(v as string | number | boolean));
+    const zodUnion = z.union(literals as [z.ZodTypeAny, z.ZodTypeAny, ...z.ZodTypeAny[]]);
+    return schema.description ? zodUnion.describe(schema.description) : zodUnion;
+  }
+
+  // Handle type-based conversion
+  const type = Array.isArray(schema.type) ? schema.type[0] : schema.type;
+
+  switch (type) {
+    case "string": {
+      const zodString = z.string();
+      return schema.description ? zodString.describe(schema.description) : zodString;
+    }
+
+    case "number":
+    case "integer": {
+      const zodNumber = z.number();
+      return schema.description ? zodNumber.describe(schema.description) : zodNumber;
+    }
+
+    case "boolean": {
+      const zodBoolean = z.boolean();
+      return schema.description ? zodBoolean.describe(schema.description) : zodBoolean;
+    }
+
+    case "null": {
+      const zodNull = z.null();
+      return schema.description ? zodNull.describe(schema.description) : zodNull;
+    }
+
+    case "array": {
+      const itemSchema = jsonSchemaToZod(schema.items);
+      const zodArray = z.array(itemSchema);
+      return schema.description ? zodArray.describe(schema.description) : zodArray;
+    }
+
+    case "object": {
+      return jsonSchemaObjectToZod(schema);
+    }
+
+    default: {
+      // Fallback: if properties exist, treat as object
+      if (schema.properties) {
+        return jsonSchemaObjectToZod(schema);
+      }
+      // Unknown type - use permissive schema
+      const zodUnknown = z.record(z.unknown());
+      return schema.description ? zodUnknown.describe(schema.description) : zodUnknown;
+    }
+  }
+}
+
+/**
+ * Convert JSON Schema object type to Zod object schema
+ */
+function jsonSchemaObjectToZod(schema: JsonSchema): z.ZodTypeAny {
+  if (!schema.properties) {
+    const zodRecord = z.record(z.unknown());
+    return schema.description ? zodRecord.describe(schema.description) : zodRecord;
+  }
+
+  const required = new Set(schema.required || []);
+  const shape: Record<string, z.ZodTypeAny> = {};
+
+  for (const [key, propSchema] of Object.entries(schema.properties)) {
+    let zodProp = jsonSchemaToZod(propSchema);
+
+    // Make non-required fields optional
+    if (!required.has(key)) {
+      zodProp = zodProp.optional();
+    }
+
+    shape[key] = zodProp;
+  }
+
+  // Use passthrough to allow additional properties (common in MCP tools)
+  const zodObject = z.object(shape).passthrough();
+  return schema.description ? zodObject.describe(schema.description) : zodObject;
 }
 
 /**
@@ -111,9 +222,12 @@ async function callTool(toolName: string, args: Record<string, unknown>): Promis
 function createVercelTool(mcpTool: McpTool): CoreTool {
   const toolName = mcpTool.name;
 
+  // Convert JSON Schema to Zod, or use permissive fallback
+  const parameters = jsonSchemaToZod(mcpTool.inputSchema);
+
   return {
     description: mcpTool.description || `Call the ${toolName} tool`,
-    parameters: z.record(z.unknown()).describe("Arguments for the tool"),
+    parameters,
     execute: async (args: Record<string, unknown>) => {
       console.log(`🔧 Calling: ${toolName}`);
 
