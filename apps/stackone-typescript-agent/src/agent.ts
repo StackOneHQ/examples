@@ -289,7 +289,8 @@ async function fetchAndCreateTools(): Promise<FetchToolsResult> {
         tools[mcpTool.name] = createVercelTool(mcpTool);
       }
 
-      providerCounts[account.provider] = mcpTools.length;
+      providerCounts[account.provider] =
+        (providerCounts[account.provider] || 0) + mcpTools.length;
       console.log(`  Found ${mcpTools.length} tools`);
     } catch (error) {
       console.warn(`  Warning: Could not fetch from ${account.provider}: ${error}`);
