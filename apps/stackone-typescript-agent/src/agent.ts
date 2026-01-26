@@ -285,8 +285,10 @@ async function fetchAndCreateTools(): Promise<FetchToolsResult> {
       const mcpTools = result.result?.tools || [];
 
       for (const mcpTool of mcpTools) {
-        toolToAccount.set(mcpTool.name, account.id);
-        tools[mcpTool.name] = createVercelTool(mcpTool);
+        // Namespace tool names by provider and account to avoid collisions across accounts.
+        const toolKey = `${account.provider}:${account.id}:${mcpTool.name}`;
+        toolToAccount.set(toolKey, account.id);
+        tools[toolKey] = createVercelTool(mcpTool);
       }
 
       providerCounts[account.provider] =
