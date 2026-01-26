@@ -69,8 +69,10 @@ function jsonSchemaToZod(schema: JsonSchema | undefined): z.ZodTypeAny {
       const zodEnum = z.enum(enumValues as [string, ...string[]]);
       return schema.description ? zodEnum.describe(schema.description) : zodEnum;
     }
-    // For mixed enums, use union of literals
-    const literals = schema.enum.map((v) => z.literal(v as string | number | boolean));
+    // For mixed enums, use union of literals (including null entries)
+    const literals = schema.enum.map((v) =>
+      v === null ? z.literal(null) : z.literal(v as string | number | boolean),
+    );
     const zodUnion = z.union(literals as [z.ZodTypeAny, z.ZodTypeAny, ...z.ZodTypeAny[]]);
     return schema.description ? zodUnion.describe(schema.description) : zodUnion;
   }
