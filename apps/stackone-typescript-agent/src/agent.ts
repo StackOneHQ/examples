@@ -15,9 +15,6 @@ import * as readline from "readline";
 const STACKONE_API_KEY = process.env.STACKONE_API_KEY || "";
 const MCP_ENDPOINT = "https://api.stackone.com/mcp";
 
-// Tool and account mappings
-const toolToAccount = new Map<string, string>();
-
 // Conversation history
 const conversationHistory: CoreMessage[] = [];
 const MAX_HISTORY_TURNS = 10;
@@ -27,6 +24,20 @@ interface LinkedAccount {
   id: string;
   provider: string;
   status: string;
+}
+
+/**
+ * Key under which a tool is exposed to the model (and used for registry/API).
+ * Format: "provider_accountId_toolName" (underscores only, API-safe per Anthropic ^[a-zA-Z0-9_-]{1,128}$).
+ */
+type ToolKey = string;
+
+/**
+ * Build the tool key for a given account and MCP tool.
+ * Uses underscores so the same key is valid for registry, tools object, and model API.
+ */
+function buildToolKey(provider: string, accountId: string, toolName: string): ToolKey {
+  return `${provider}_${accountId}_${toolName}`;
 }
 
 /**
@@ -189,7 +200,7 @@ async function mcpRequest(
       Authorization: `Basic ${Buffer.from(STACKONE_API_KEY + ":").toString("base64")}`,
       "x-account-id": accountId,
       "Content-Type": "application/json",
-      Accept: "application/json",
+      Accept: "application/json, text/event-stream",
     },
     body: JSON.stringify({
       jsonrpc: "2.0",
@@ -206,41 +217,72 @@ async function mcpRequest(
   return response.json();
 }
 
+/** Single tool entry in the registry (accountId + raw MCP tool name). */
+interface ToolRegistryEntry {
+  accountId: string;
+  rawName: string;
+}
+
 /**
- * Call a StackOne tool via MCP
+ * Registry of tools exposed to the model. Encapsulates lookup by ToolKey
+ * and MCP invocation (accountId + raw tool name).
  */
-async function callTool(toolName: string, args: Record<string, unknown>): Promise<unknown> {
-  const accountId = toolToAccount.get(toolName);
-  if (!accountId) {
-    throw new Error(`Unknown tool: ${toolName}`);
-  }
+interface ToolRegistry {
+  register(toolKey: ToolKey, accountId: string, rawName: string): void;
+  getAccountId(toolKey: ToolKey): string | undefined;
+  getRawName(toolKey: ToolKey): string | undefined;
+  callTool(toolKey: ToolKey, args: Record<string, unknown>): Promise<unknown>;
+}
 
-  const result = (await mcpRequest(
-    "tools/call",
-    { name: toolName, arguments: args },
-    accountId
-  )) as { result?: unknown };
+function createToolRegistry(): ToolRegistry {
+  const entries = new Map<ToolKey, ToolRegistryEntry>();
 
-  return result.result ?? result;
+  return {
+    register(toolKey, accountId, rawName) {
+      entries.set(toolKey, { accountId, rawName });
+    },
+
+    getAccountId(toolKey) {
+      return entries.get(toolKey)?.accountId;
+    },
+
+    getRawName(toolKey) {
+      return entries.get(toolKey)?.rawName ?? toolKey;
+    },
+
+    async callTool(toolKey, args) {
+      const entry = entries.get(toolKey);
+      if (!entry) {
+        throw new Error(`Unknown tool: ${toolKey}`);
+      }
+      const result = (await mcpRequest(
+        "tools/call",
+        { name: entry.rawName, arguments: args },
+        entry.accountId
+      )) as { result?: unknown };
+      return result.result ?? result;
+    },
+  };
 }
 
 /**
  * Convert MCP tools to Vercel AI SDK tools
+ * @param mcpTool - The underlying MCP tool definition
+ * @param toolKey - Single key for registry, tools object, and API (format: provider_accountId_toolName)
+ * @param registry - Registry used to invoke the tool (lookup + MCP call)
  */
-function createVercelTool(mcpTool: McpTool): CoreTool {
-  const toolName = mcpTool.name;
-
+function createVercelTool(mcpTool: McpTool, toolKey: ToolKey, registry: ToolRegistry): CoreTool {
   // Convert JSON Schema to Zod, or use permissive fallback
   const parameters = jsonSchemaToZod(mcpTool.inputSchema);
 
   return {
-    description: mcpTool.description || `Call the ${toolName} tool`,
+    description: mcpTool.description || `Call the ${toolKey} tool`,
     parameters,
     execute: async (args: Record<string, unknown>) => {
-      console.log(`🔧 Calling: ${toolName}`);
+      console.log(`🔧 Calling: ${toolKey}`);
 
       try {
-        const result = await callTool(toolName, args);
+        const result = await registry.callTool(toolKey, args);
         const resultStr = JSON.stringify(result, null, 2);
 
         // Truncate large results
@@ -269,12 +311,28 @@ interface FetchToolsResult {
 }
 
 /**
+ * Register a single MCP tool in the registry and tools record.
+ * Tool key uses underscores only (API-safe); same key used everywhere.
+ */
+function registerTool(
+  account: LinkedAccount,
+  mcpTool: McpTool,
+  registry: ToolRegistry,
+  tools: Record<string, CoreTool>
+): void {
+  const toolKey = buildToolKey(account.provider, account.id, mcpTool.name);
+  registry.register(toolKey, account.id, mcpTool.name);
+  tools[toolKey] = createVercelTool(mcpTool, toolKey, registry);
+}
+
+/**
  * Fetch tools from all linked accounts and create Vercel tools
  */
 async function fetchAndCreateTools(): Promise<FetchToolsResult> {
   console.log("Fetching linked accounts...");
   const accounts = await getLinkedAccounts();
 
+  const registry = createToolRegistry();
   const tools: Record<string, CoreTool> = {};
   const providerCounts: Record<string, number> = {};
 
@@ -293,10 +351,7 @@ async function fetchAndCreateTools(): Promise<FetchToolsResult> {
       const mcpTools = result.result?.tools || [];
 
       for (const mcpTool of mcpTools) {
-        // Namespace tool names by provider and account to avoid collisions across accounts.
-        const toolKey = `${account.provider}:${account.id}:${mcpTool.name}`;
-        toolToAccount.set(toolKey, account.id);
-        tools[toolKey] = createVercelTool(mcpTool);
+        registerTool(account, mcpTool, registry, tools);
       }
 
       providerCounts[account.provider] =
@@ -331,7 +386,7 @@ You can directly call tools for the user's connected services.
 Connected providers:
 ${capabilities}
 
-Tool names follow the pattern: provider_action (e.g., gmail_list_messages, drive_list_files).
+Tool names follow the pattern: provider_accountId_action (e.g., gmail_abc123_gmail_list_messages, googledrive_xyz789_drive_list_files). Use the exact tool names listed in your available tools.
 Use tool names and descriptions to understand their capabilities.
 You have conversation history - you can reference previous results.
 Always complete multi-step tasks fully.`;
@@ -371,7 +426,7 @@ async function runAgent(
   conversationHistory.push({ role: "user", content: userMessage });
 
   try {
-    const { text, toolCalls } = await generateText({
+    const { text, toolCalls, messages: responseMessages } = await generateText({
       model: anthropic("claude-sonnet-4-20250514"),
       system: systemPrompt,
       messages: conversationHistory,
@@ -386,8 +441,15 @@ async function runAgent(
       console.log(`\n📊 Tools used: ${uniqueTools.join(", ")} (${toolCalls.length} calls)`);
     }
 
-    // Add response to history
-    conversationHistory.push({ role: "assistant", content: text });
+    // Persist full response (assistant + tool calls + tool results) so follow-ups can reference prior results
+    if (responseMessages && responseMessages.length > 0) {
+      for (const msg of responseMessages) {
+        conversationHistory.push(msg as CoreMessage);
+      }
+    } else {
+      // Fallback: SDK may not return messages in some versions
+      conversationHistory.push({ role: "assistant", content: text });
+    }
 
     // Trim history if needed
     while (conversationHistory.length > MAX_HISTORY_TURNS * 2) {
