@@ -28,13 +28,15 @@ interface LinkedAccount {
 
 /**
  * Key under which a tool is exposed to the model (and used for registry/API).
- * Format: "provider_accountId_toolName" (underscores only, API-safe per Anthropic ^[a-zA-Z0-9_-]{1,128}$).
+ * Format: "provider_accountId_toolName", using underscores as separators.
+ * Intended to be compatible with Anthropic tool name requirements (^[a-zA-Z0-9_-]{1,128}$),
+ * assuming the provider, accountId, and toolName components themselves are valid.
  */
 type ToolKey = string;
 
 /**
- * Build the tool key for a given account and MCP tool.
- * Uses underscores so the same key is valid for registry, tools object, and model API.
+ * Build the tool key for a given account and MCP tool by joining components with underscores.
+ * Does not modify or sanitize the individual components.
  */
 function buildToolKey(provider: string, accountId: string, toolName: string): ToolKey {
   return `${provider}_${accountId}_${toolName}`;
