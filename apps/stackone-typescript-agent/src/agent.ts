@@ -4,7 +4,7 @@
 
 import "dotenv/config";
 import { anthropic } from "@ai-sdk/anthropic";
-import { generateText, ToolSet, ModelMessage, stepCountIs } from "ai";
+import { generateText, stepCountIs, type ToolSet } from "ai";
 import { StackOneToolSet } from "@stackone/ai";
 import * as readline from "readline";
 
@@ -14,7 +14,8 @@ const TOOL_FILTER = process.env.STACKONE_TOOL_FILTER ?? "*";
 const MODEL = process.env.MODEL ?? "claude-sonnet-4-20250514";
 const MAX_HISTORY_TURNS = 10;
 
-const conversationHistory: ModelMessage[] = [];
+type Message = { role: "user" | "assistant"; content: string };
+const conversationHistory: Message[] = [];
 
 const SYSTEM_PROMPT = `You are a helpful assistant with access to StackOne tools.
 Use the available tools to help the user with their requests.
@@ -32,7 +33,24 @@ const colors = {
   magenta: "\x1b[35m",
 };
 
-function trimHistory(messages: ModelMessage[], maxTurns: number): void {
+function formatError(error: unknown): string {
+  const message = error instanceof Error ? error.message : String(error);
+  if (message.includes("401") || message.includes("Unauthorized")) {
+    return "Authentication failed. Check your API keys.";
+  }
+  if (message.includes("rate") || message.includes("429")) {
+    return "Rate limited. Please wait a moment and try again.";
+  }
+  if (message.includes("timeout") || message.includes("ETIMEDOUT")) {
+    return "Request timed out. Please try again.";
+  }
+  if (message.includes("network") || message.includes("ENOTFOUND")) {
+    return "Network error. Check your internet connection.";
+  }
+  return message;
+}
+
+function trimHistory(messages: Message[], maxTurns: number): void {
   if (messages.length <= 0 || maxTurns <= 0) return;
   let userCount = 0;
   let startIndex = 0;
@@ -58,30 +76,22 @@ async function loadTools(): Promise<ToolSet> {
 
   const actions = TOOL_FILTER !== "*" ? [TOOL_FILTER] : undefined;
   const tools = await toolset.fetchTools({ actions });
+  // Type assertion needed due to SDK schema type variance
   return tools.toAISDK() as unknown as ToolSet;
 }
 
 async function runAgent(userMessage: string, tools: ToolSet): Promise<string> {
   const result = await generateText({
-    model: anthropic(MODEL) as Parameters<typeof generateText>[0]["model"],
+    model: anthropic(MODEL),
     system: SYSTEM_PROMPT,
     messages: [...conversationHistory, { role: "user" as const, content: userMessage }],
     tools,
     stopWhen: stepCountIs(15),
   });
 
-  const { text, response } = result;
-  const responseMessages = response?.messages;
-
+  const { text } = result;
   conversationHistory.push({ role: "user", content: userMessage });
-  if (responseMessages && responseMessages.length > 0) {
-    for (const msg of responseMessages) {
-      conversationHistory.push(msg as ModelMessage);
-    }
-  } else {
-    conversationHistory.push({ role: "assistant", content: text });
-  }
-
+  conversationHistory.push({ role: "assistant", content: text });
   trimHistory(conversationHistory, MAX_HISTORY_TURNS);
   return text;
 }
@@ -134,8 +144,7 @@ async function interactiveMode(tools: ToolSet): Promise<void> {
           const response = await runAgent(trimmed, tools);
           console.log(response);
         } catch (error) {
-          const message = error instanceof Error ? error.message : String(error);
-          console.error(`Error: ${message}`);
+          console.error(`Error: ${formatError(error)}`);
         }
       }
     }
@@ -169,8 +178,7 @@ async function interactiveMode(tools: ToolSet): Promise<void> {
         const response = await runAgent(trimmed, tools);
         console.log(`${magenta}${bright}  Assistant ${reset}${dim}>${reset} ${response}\n`);
       } catch (error) {
-        const message = error instanceof Error ? error.message : String(error);
-        console.error(`${yellow}  Error: ${message}${reset}\n`);
+        console.error(`${yellow}  Error: ${formatError(error)}${reset}\n`);
       }
 
       askQuestion();
