@@ -30,21 +30,22 @@ This repository contains **minimal, production-oriented examples** for common St
 
 ```
 examples/
-├── apps/                    # Example applications (each runs in isolation)
-│   ├── oauth-redirect-proxy/     # OAuth redirect proxy example
-│   └── rag-knowledge-agent/      # Context-Aware Agent Playground
-├── packages/                # Optional shared config (eslint, typescript)
-│   ├── eslint-config/
-│   └── typescript-config/
-└── README.md
+├── apps/                    # Example applications
+│   ├── oauth-redirect-proxy/    # OAuth redirect proxy example
+│   └── rag-knowledge-agent/     # Context-Aware Agent Playground
+├── packages/                # Shared configuration packages
+│   ├── eslint-config/       # Shared ESLint configurations
+│   └── typescript-config/   # Shared TypeScript configurations
+├── package.json             # Root package.json (Turborepo config)
+└── turbo.json              # Turborepo task configuration
 ```
 
 This repository uses **Turborepo** for monorepo management. Each app is independent but shares build tooling and can be managed from the root.
 
 ## Prerequisites
 
-- **Node.js** >= 18
-- **npm** (or compatible package manager)
+- **Node.js** >= 18 (see [engines](./package.json#L16) in package.json)
+- **npm** >= 10.9.2 (or compatible package manager)
 - **StackOne account** - Sign up at [stackone.com](https://stackone.com) to get your API credentials
 
 ## Getting Started
