@@ -18,7 +18,7 @@ This repository contains **minimal, production-oriented examples** for common St
 ## Examples included
 
 - **[OAuth Redirect Proxy](./apps/oauth-redirect-proxy/)** - A custom domain proxy for OAuth redirects that forwards callbacks to StackOne, solving the need for verified domains in OAuth app configurations
-- **[RAG Agent](./apps/react-nextjs-knowledge-agent/)** - A knowledge agent implementation using RAG (Retrieval-Augmented Generation) with StackOne integrations
+- **[Context-Aware Agent Playground](./apps/rag-knowledge-agent/)** - A context-aware agent playground implementation using RAG (Retrieval-Augmented Generation), realtime StackOne actions & webhooks for efficient RAG re-indexing
 
 
 ## Languages
@@ -30,42 +30,39 @@ This repository contains **minimal, production-oriented examples** for common St
 
 ```
 examples/
-├── apps/                    # Example applications
-│   ├── oauth-redirect-proxy/    # OAuth redirect proxy example
-│   └── react-nextjs-knowledge-agent/  # RAG agent example
-├── packages/                # Shared configuration packages
-│   ├── eslint-config/       # Shared ESLint configurations
-│   └── typescript-config/   # Shared TypeScript configurations
-├── package.json             # Root package.json (Turborepo config)
-└── turbo.json              # Turborepo task configuration
+├── apps/                    # Example applications (each runs in isolation)
+│   ├── oauth-redirect-proxy/     # OAuth redirect proxy example
+│   └── rag-knowledge-agent/      # Context-Aware Agent Playground
+├── packages/                # Optional shared config (eslint, typescript)
+│   ├── eslint-config/
+│   └── typescript-config/
+└── README.md
 ```
 
-Each app is **independent** and manages its own dependencies. There is no shared `package-lock.json` at the root level.
+Each app is **independent**: it has its own `package.json` and `node_modules`. There is no root-level package manager or monorepo runner. **Always run commands from inside the app directory** so the app root is the app folder (e.g. `apps/rag-knowledge-agent`), not `/` or `apps/`.
 
 ## Prerequisites
 
-- **Node.js** >= 18 (see [engines](./package.json#L16) in package.json)
-- **npm** >= 10.9.2 (or compatible package manager)
+- **Node.js** >= 18
+- **npm** (or compatible package manager)
 - **StackOne account** - Sign up at [stackone.com](https://stackone.com) to get your API credentials
-
-
-
 
 ## Getting Started
 
-Install dependencies for a specific app:
+Install and run each app from **that app’s directory** (project root = app folder):
 
 ```bash
 cd apps/<app-name>
 npm install
+npm run dev     # or build, start, lint — see the app’s package.json
 ```
 
-Run development commands from the root:
+Example for the RAG knowledge agent:
 
 ```bash
-npm run dev    # Run all apps
-npm run build  # Build all apps
-npm run lint   # Lint all apps
+cd apps/rag-knowledge-agent
+npm install
+npm run dev
 ```
 
 ## Related documentation
