@@ -1,0 +1,272 @@
+/* StackOneSidebar Styles */
+.sidebar {
+  background: #ffffff;
+}
+
+.sidebarContent {
+  padding: 24px 16px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebarContentCollapsed {
+  padding: 24px 8px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.headerSection {
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 24px;
+  justify-content: space-between;
+}
+
+.headerSectionCollapsed {
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 24px;
+  justify-content: center;
+}
+
+.logoSection {
+  flex: 1;
+  padding-top: 3px;
+}
+
+.logoLink {
+  text-decoration: none;
+  color: inherit;
+}
+
+.logoText {
+  font-size: 16px;
+  font-weight: 600;
+  color: #202020;
+}
+
+.collapseButton {
+  border: none;
+  box-shadow: none;
+}
+
+.divider {
+  margin: 0 0 24px 0;
+  border-color: #f0f0f0;
+}
+
+.divider :global(.ant-divider-inner-text) {
+  display: none;
+}
+
+.searchSection {
+  margin-bottom: 24px;
+}
+
+.searchInput {
+  width: 100%;
+}
+
+.searchIcon {
+  color: #a0a0a0;
+}
+
+.navigationSection {
+  flex: 1;
+  overflow: auto;
+}
+
+.menuContainer {
+  flex: 1;
+  overflow: auto;
+}
+
+.userSection {
+  margin-top: auto;
+  padding-top: 16px;
+}
+
+.navigationMenu {
+  border: none;
+  background: transparent;
+}
+
+.navigationMenu :global(.ant-menu-item) {
+  border: none;
+  margin: 0;
+}
+
+.navigationMenu :global(.ant-menu-item::after) {
+  display: none;
+}
+
+.navigationDivider {
+  margin: 24px 0;
+}
+
+.userDivider {
+  margin: 24px 0;
+  border-color: #f0f0f0;
+}
+
+.userDivider :global(.ant-divider-inner-text) {
+  display: none;
+}
+
+.userProfileSection {
+  display: flex;
+  align-items: center;
+}
+
+.userAvatar {
+  background-color: #505050;
+  margin-right: 12px;
+}
+
+.userAvatarCollapsed {
+  background-color: #505050;
+  margin-right: 0;
+}
+
+.userInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.userName {
+  font-size: 14px;
+  font-weight: 500;
+  color: #202020;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.userEmail {
+  font-size: 12px;
+  color: #707070;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.settingsIcon {
+  color: #a0a0a0;
+  font-size: 12px;
+}
+
+/* User Profile Trigger */
+.userProfileTrigger {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  justify-content: flex-start;
+}
+
+.userProfileTrigger:hover {
+  background-color: #f5f5f5;
+}
+
+.userProfileTriggerCollapsed {
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  justify-content: center;
+}
+
+.userProfileTriggerCollapsed:hover {
+  background-color: #f5f5f5;
+}
+
+/* Menu Highlight Styles - Higher Specificity */
+.navigationMenu :global(.ant-menu-item-selected) {
+  background-color: #f8f9fa !important;
+  color: #6c757d !important;
+  border: none !important;
+  border-right: none !important;
+}
+
+.navigationMenu :global(.ant-menu-item-selected .ant-menu-item-icon) {
+  color: #6c757d !important;
+}
+
+.navigationMenu :global(.ant-menu-item-selected::after) {
+  display: none !important;
+}
+
+.navigationMenu :global(.ant-menu-item:hover) {
+  background-color: #f5f5f5 !important;
+  border: none !important;
+  border-right: none !important;
+}
+
+.navigationMenu :global(.ant-menu-item) {
+  border: none !important;
+  border-right: none !important;
+  margin: 0 !important;
+}
+
+.navigationMenu :global(.ant-menu-item::after) {
+  display: none !important;
+}
+
+.navigationMenu :global(.ant-menu-item::before) {
+  display: none !important;
+}
+
+/* Main Menu Styles */
+.mainMenu {
+  border: none !important;
+  border-right: none !important;
+  background: transparent;
+}
+
+.mainMenu :global(.ant-menu) {
+  border: none !important;
+  border-right: none !important;
+}
+
+.mainMenu :global(.ant-menu-item) {
+  border: none !important;
+  border-right: none !important;
+  margin: 0 !important;
+}
+
+.mainMenu :global(.ant-menu-item::after) {
+  display: none !important;
+}
+
+.mainMenu :global(.ant-menu-item::before) {
+  display: none !important;
+}
+
+.mainMenu :global(.ant-menu-item:hover) {
+  background-color: #f5f5f5 !important;
+  border: none !important;
+  border-right: none !important;
+}
+
+.mainMenu :global(.ant-menu-item-selected) {
+  background-color: #fafbfc !important;
+  color: #404040 !important;
+  border: none !important;
+  border-right: none !important;
+}
+
+.mainMenu :global(.ant-menu-item-selected .ant-menu-item-icon) {
+  color: #404040 !important;
+}
+
+.mainMenu :global(.ant-menu-item-selected::after) {
+  display: none !important;
+}

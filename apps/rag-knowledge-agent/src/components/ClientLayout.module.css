@@ -1,0 +1,45 @@
+/* ClientLayout Styles */
+.container {
+  min-height: 100vh;
+  display: flex;
+  background-color: #fafafa;
+}
+
+.loadingContainer {
+  min-height: 100vh;
+  background-color: #fafafa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.main {
+  flex: 1;
+  background-color: #fafafa;
+  transition: margin-left 0.2s ease;
+  min-height: 100vh;
+}
+
+.authenticatedContainer {
+  min-height: 100vh;
+  display: flex;
+}
+
+.mainContent {
+  flex: 1;
+  background-color: #fafafa;
+  transition: margin-left 0.2s ease;
+}
+
+.mainContentCollapsed {
+  margin-left: 80px;
+}
+
+.mainContentExpanded {
+  margin-left: 280px;
+}
+
+.unauthenticatedContainer {
+  min-height: 100vh;
+  background-color: #fafafa;
+}

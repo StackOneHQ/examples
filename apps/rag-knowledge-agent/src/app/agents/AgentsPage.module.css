@@ -1,0 +1,285 @@
+/* Agents Page Styles */
+
+.container {
+  padding: 32px;
+  background-color: #fafafa;
+  min-height: 100vh;
+}
+
+.loadingContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #fafafa;
+}
+
+.loadingText {
+  color: #202020;
+  font-size: 16px;
+}
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 32px;
+}
+
+.headerLeft {
+  /* Container for title and subtitle */
+}
+
+.headerTitle {
+  margin: 0;
+  color: #202020;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.headerSubtitle {
+  color: #707070;
+  font-size: 16px;
+  margin-top: 4px;
+}
+
+.newAgentButton {
+  background-color: #000000;
+  border-color: #000000;
+  color: #ffffff;
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  height: 48px;
+  font-size: 16px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.newAgentButton:hover {
+  background-color: #333333;
+  border-color: #333333;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Stats Cards */
+.statsRow {
+  margin-bottom: 32px;
+}
+
+.statCard {
+  /* Card styles are handled by Ant Design Card component */
+}
+
+.statContent {
+  text-align: center;
+}
+
+.statNumber {
+  font-size: 32px;
+  font-weight: 600;
+  color: #000000;
+  margin-bottom: 8px;
+}
+
+.statLabel {
+  color: #707070;
+  font-size: 14px;
+}
+
+.statLabelConnected {
+  color: #707070;
+  font-size: 14px;
+}
+
+/* Error Message */
+.errorCard {
+  margin-bottom: 24px;
+  border: 1px solid #ff4d4f;
+  background-color: #fff2f0;
+}
+
+.errorText {
+  color: #ff4d4f;
+  font-size: 14px;
+}
+
+/* Agents List */
+.agentsCard {
+  /* Card styles are handled by Ant Design Card component */
+}
+
+.agentsCard :global(.ant-card-head-title) {
+  padding: 16px 0 !important;
+  margin: 0 !important;
+}
+
+.agentsCardTitle {
+  margin: 0 !important;
+  color: #202020 !important;
+  font-size: 18px !important;
+  font-weight: 600 !important;
+  line-height: 1.4 !important;
+  padding: 0 !important;
+  vertical-align: baseline !important;
+}
+
+.emptyState {
+  margin: 40px 0;
+}
+
+.emptyText {
+  color: #707070;
+  margin-bottom: 16px;
+  display: block;
+  font-size: 14px;
+}
+
+.createAgentButton {
+  background-color: #000000;
+  border-color: #000000;
+  color: #ffffff;
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.createAgentButton:hover {
+  background-color: #333333;
+  border-color: #333333;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Agent Cards */
+.agentCard {
+  border: 1px solid #f0f0f0;
+  border-radius: 12px;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.agentCard:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  border-color: #d9d9d9;
+}
+
+.agentCardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.agentCardLeft {
+  flex: 1;
+}
+
+.agentName {
+  color: #202020;
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.agentDescription {
+  color: #707070;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.agentIntegrations {
+  margin-left: 12px;
+}
+
+.integrationIcon {
+  width: 24px;
+  height: 24px;
+  background-color: #f0f9ff;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #e0e0e0;
+}
+
+.integrationIcon img {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+}
+
+.integrationIcon i {
+  font-size: 12px;
+  color: #000000;
+}
+
+.agentActions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.agentCreatedDate {
+  color: #707070;
+  font-size: 12px;
+}
+
+.agentActionButtons {
+  display: flex;
+  gap: 4px;
+}
+
+.editButton {
+  color: #707070;
+  transition: color 0.2s ease;
+}
+
+.editButton:hover {
+  color: #202020;
+}
+
+.deleteButton {
+  color: #ff4d4f;
+  transition: color 0.2s ease;
+}
+
+.deleteButton:hover {
+  color: #d9363e;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .container {
+    padding: 20px;
+  }
+  
+  .header {
+    flex-direction: column;
+    gap: 16px;
+    align-items: stretch;
+  }
+  
+  .headerTitle {
+    font-size: 20px;
+  }
+  
+  .headerSubtitle {
+    font-size: 14px;
+  }
+  
+  .newAgentButton {
+    height: 44px;
+    font-size: 14px;
+  }
+  
+  .statNumber {
+    font-size: 24px;
+  }
+  
+  .agentCard {
+    margin-bottom: 16px;
+  }
+}

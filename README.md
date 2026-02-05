@@ -18,7 +18,7 @@ This repository contains **minimal, production-oriented examples** for common St
 ## Examples included
 
 - **[OAuth Redirect Proxy](./apps/oauth-redirect-proxy/)** - A custom domain proxy for OAuth redirects that forwards callbacks to StackOne, solving the need for verified domains in OAuth app configurations
-- **[RAG Agent](./apps/react-nextjs-knowledge-agent/)** - A knowledge agent implementation using RAG (Retrieval-Augmented Generation) with StackOne integrations
+- **[Context-Aware Agent Playground](./apps/rag-knowledge-agent/)** - A context-aware agent playground implementation using RAG (Retrieval-Augmented Generation), realtime StackOne actions & webhooks for efficient RAG re-indexing
 
 
 ## Languages
@@ -32,7 +32,7 @@ This repository contains **minimal, production-oriented examples** for common St
 examples/
 ├── apps/                    # Example applications
 │   ├── oauth-redirect-proxy/    # OAuth redirect proxy example
-│   └── react-nextjs-knowledge-agent/  # RAG agent example
+│   └── rag-knowledge-agent/     # Context-Aware Agent Playground
 ├── packages/                # Shared configuration packages
 │   ├── eslint-config/       # Shared ESLint configurations
 │   └── typescript-config/   # Shared TypeScript configurations
@@ -40,7 +40,7 @@ examples/
 └── turbo.json              # Turborepo task configuration
 ```
 
-Each app is **independent** and manages its own dependencies. There is no shared `package-lock.json` at the root level.
+This repository uses **Turborepo** for monorepo management. Each app is independent but shares build tooling and can be managed from the root.
 
 ## Prerequisites
 
@@ -48,24 +48,42 @@ Each app is **independent** and manages its own dependencies. There is no shared
 - **npm** >= 10.9.2 (or compatible package manager)
 - **StackOne account** - Sign up at [stackone.com](https://stackone.com) to get your API credentials
 
-
-
-
 ## Getting Started
 
-Install dependencies for a specific app:
+### Option 1: Using Turborepo (Recommended)
+
+From the repository root:
 
 ```bash
-cd apps/<app-name>
+# Install all dependencies
 npm install
+
+# Run all apps in development mode
+npm run dev
+
+# Build all apps
+npm run build
+
+# Lint all apps
+npm run lint
 ```
 
-Run development commands from the root:
+### Option 2: Run Individual Apps
+
+You can still run commands from individual app directories:
 
 ```bash
-npm run dev    # Run all apps
-npm run build  # Build all apps
-npm run lint   # Lint all apps
+cd apps/rag-knowledge-agent
+npm install
+npm run dev
+```
+
+Or use Turborepo to run a specific app:
+
+```bash
+# From root directory
+turbo run dev --filter=rag-knowledge-agent
+turbo run build --filter=oauth-redirect-proxy
 ```
 
 ## Related documentation
@@ -73,4 +91,3 @@ npm run lint   # Lint all apps
 - **[StackOne Documentation](https://docs.stackone.com)** - Complete API reference and integration guides
 - **[StackOne Integration Gateway](https://stackone.com)** - Learn more about StackOne's platform
 - **[OAuth Proxy Redirect Guide](https://docs.stackone.com/integration-guides/oauth-proxy-redirect)** - Detailed guide for OAuth redirect proxy setup
-

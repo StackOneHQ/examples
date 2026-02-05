@@ -1,0 +1,16 @@
+{
+  "functions": {
+    "src/app/api/chat/route.ts": {
+      "maxDuration": 60
+    },
+    "src/app/api/agents/process/route.ts": {
+      "maxDuration": 60
+    },
+    "src/app/api/documents/ingest/route.ts": {
+      "maxDuration": 60
+    },
+    "src/app/api/stackone/webhook/route.ts": {
+      "maxDuration": 30
+    }
+  }
+}

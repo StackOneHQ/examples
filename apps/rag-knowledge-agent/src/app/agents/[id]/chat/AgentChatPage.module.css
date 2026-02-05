@@ -1,0 +1,201 @@
+/* Agent Chat Page Styles */
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: #fafafa;
+}
+
+.header {
+  background-color: white;
+  border-bottom: 1px solid #f0f0f0;
+  padding: 16px 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.headerContent {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.leftSection {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #707070;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 12px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.backLink:hover {
+  background-color: #f5f5f5;
+  color: #202020;
+}
+
+.backLink i {
+  font-size: 14px;
+}
+
+.divider {
+  height: 24px;
+  width: 1px;
+  background-color: #e0e0e0;
+}
+
+.agentInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.agentIcon {
+  width: 40px;
+  height: 40px;
+  background: #ffffff;
+  border: 1px solid rgba(240, 240, 240, 0.8);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(80, 80, 80, 0.2);
+}
+
+.agentIcon i {
+  color: #202020;
+  font-size: 18px;
+}
+
+.agentDetails {
+  /* Container for agent name, description, and stats */
+}
+
+.agentName {
+  font-size: 16px;
+  font-weight: 600;
+  color: #202020;
+  line-height: 1.2;
+}
+
+.agentDescription {
+  font-size: 12px;
+  color: #707070;
+  margin-top: 2px;
+}
+
+.threadStats {
+  font-size: 11px;
+  color: #707070;
+  margin-top: 4px;
+  display: flex;
+  gap: 12px;
+}
+
+.editButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #707070;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  background-color: white;
+  transition: all 0.2s ease;
+}
+
+.editButton:hover {
+  background-color: #f5f5f5;
+  border-color: #d0d0d0;
+  color: #202020;
+}
+
+.editButton i {
+  font-size: 14px;
+}
+
+.chatContainer {
+  flex: 1;
+  overflow: hidden;
+}
+
+/* Loading and Error States */
+.loadingContainer {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loadingSpinner {
+  animation: spin 1s linear infinite;
+  border-radius: 50%;
+  height: 128px;
+  width: 128px;
+  border-bottom: 2px solid var(--stackone-primary, #007bff);
+}
+
+.errorContainer {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.errorContent {
+  text-align: center;
+}
+
+.errorIcon {
+  margin: 0 auto;
+  color: var(--stackone-gray-500, #6b7280);
+  font-size: 3rem;
+}
+
+.errorTitle {
+  margin-top: 8px;
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--stackone-gray-900, #111827);
+}
+
+.errorMessage {
+  margin-top: 4px;
+  font-size: 14px;
+  color: var(--stackone-gray-700, #374151);
+}
+
+.errorBackLink {
+  margin-top: 16px;
+  display: inline-flex;
+  align-items: center;
+  color: var(--stackone-primary, #007bff);
+  text-decoration: none;
+}
+
+.errorBackLink:hover {
+  color: var(--stackone-primary-dark, #0056b3);
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
