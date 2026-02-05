@@ -222,4 +222,7 @@ async function main(): Promise<void> {
   await interactiveMode(tools);
 }
 
-main().catch(console.error);
+main().catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
+});
