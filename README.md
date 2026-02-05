@@ -39,7 +39,7 @@ examples/
 └── README.md
 ```
 
-Each app is **independent**: it has its own `package.json` and `node_modules`. There is no root-level package manager or monorepo runner. **Always run commands from inside the app directory** so the app root is the app folder (e.g. `apps/rag-knowledge-agent`), not `/` or `apps/`.
+This repository uses **Turborepo** for monorepo management. Each app is independent but shares build tooling and can be managed from the root.
 
 ## Prerequisites
 
@@ -49,15 +49,27 @@ Each app is **independent**: it has its own `package.json` and `node_modules`. T
 
 ## Getting Started
 
-Install and run each app from **that app’s directory** (project root = app folder):
+### Option 1: Using Turborepo (Recommended)
+
+From the repository root:
 
 ```bash
-cd apps/<app-name>
+# Install all dependencies
 npm install
-npm run dev     # or build, start, lint — see the app’s package.json
+
+# Run all apps in development mode
+npm run dev
+
+# Build all apps
+npm run build
+
+# Lint all apps
+npm run lint
 ```
 
-Example for the RAG knowledge agent:
+### Option 2: Run Individual Apps
+
+You can still run commands from individual app directories:
 
 ```bash
 cd apps/rag-knowledge-agent
@@ -65,9 +77,16 @@ npm install
 npm run dev
 ```
 
+Or use Turborepo to run a specific app:
+
+```bash
+# From root directory
+turbo run dev --filter=rag-knowledge-agent
+turbo run build --filter=oauth-redirect-proxy
+```
+
 ## Related documentation
 
 - **[StackOne Documentation](https://docs.stackone.com)** - Complete API reference and integration guides
 - **[StackOne Integration Gateway](https://stackone.com)** - Learn more about StackOne's platform
 - **[OAuth Proxy Redirect Guide](https://docs.stackone.com/integration-guides/oauth-proxy-redirect)** - Detailed guide for OAuth redirect proxy setup
-

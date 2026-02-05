@@ -98,9 +98,12 @@ You can also use other PostgreSQL providers from the Vercel Marketplace (e.g., P
 2. **Configure the project:**
    - **Framework Preset:** Next.js
    - **Root Directory:** `apps/rag-knowledge-agent`
-   - **Build Command:** `npm run build` (or leave default)
+   - **Build Command:** `cd ../.. && npm install && npm run build --filter=rag-knowledge-agent` (or use Turborepo)
    - **Output Directory:** `.next` (default)
-   - **Install Command:** `npm install` (default)
+   - **Install Command:** `cd ../.. && npm install` (install from root for Turborepo)
+   - **OR** for simpler setup, keep root directory as `apps/rag-knowledge-agent` and use:
+     - **Build Command:** `npm run build` (default)
+     - **Install Command:** `npm install` (default)
 
 3. **Add Environment Variables:**
    Click "Environment Variables" and add the following:
