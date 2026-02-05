@@ -133,11 +133,7 @@ async function interactiveMode(tools: ToolSet): Promise<void> {
   }
 
   if (!isInteractive) {
-    const lines: string[] = [];
     for await (const line of rl) {
-      lines.push(line);
-    }
-    for (const line of lines) {
       const trimmed = line.trim();
       if (trimmed && !["quit", "exit", "q"].includes(trimmed.toLowerCase())) {
         try {
@@ -148,6 +144,7 @@ async function interactiveMode(tools: ToolSet): Promise<void> {
         }
       }
     }
+    rl.close();
     return;
   }
 
