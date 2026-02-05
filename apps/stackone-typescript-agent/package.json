@@ -4,6 +4,9 @@
     "private": true,
     "description": "StackOne AI Agent Example using Vercel AI SDK and StackOne Toolset SDK (@stackone/ai)",
     "type": "module",
+    "engines": {
+        "node": ">=20.19.6"
+    },
     "scripts": {
         "agent": "tsx src/agent.ts",
         "check-types": "tsc --noEmit"
