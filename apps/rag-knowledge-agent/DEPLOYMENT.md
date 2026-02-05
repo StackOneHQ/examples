@@ -116,7 +116,7 @@ You can also use other PostgreSQL providers from the Vercel Marketplace (e.g., P
    OPENAI_EMBEDDING_MODEL=text-embedding-3-small
    OPENAI_EMBEDDING_DIMENSIONS=1536
    STACKONE_API_KEY=<your-stackone-api-key>
-   NEXTAUTH_SECRET=<generate-a-random-secret>
+   NEXTAUTH_SECRET=<generate-a-random-secret-see-below>
    NEXTAUTH_URL=https://your-app.vercel.app
    APP_URL=https://your-app.vercel.app
    AVAILABLE_INTEGRATIONS=googledrive,googledocs,googlesheets,notion_documents
@@ -143,17 +143,36 @@ You can also use other PostgreSQL providers from the Vercel Marketplace (e.g., P
    DEBUG_TOOLS=1
    ```
 
-4. **Generate NEXTAUTH_SECRET:**
-   You can generate a secure secret using:
+4. **Generate NEXTAUTH_SECRET (Required):**
+   
+   **NEXTAUTH_SECRET is REQUIRED** - it's used to sign and encrypt JWT tokens for authentication. Generate it BEFORE deploying:
+   
    ```bash
    openssl rand -base64 32
    ```
+   
    Or use an online generator: https://generate-secret.vercel.app/32
+   
+   Copy the generated secret and set it as `NEXTAUTH_SECRET` in Vercel environment variables.
 
-5. **Deploy:**
+5. **Set NEXTAUTH_URL (Recommended):**
+   
+   **NEXTAUTH_URL is recommended** but can be auto-detected by NextAuth on Vercel if "Automatically expose System Environment Variables" is enabled in your Vercel project settings.
+   
+   **Before first deployment:**
+   - You can use a placeholder: `https://your-app-name.vercel.app` (replace with your actual project name)
+   - Or leave it unset if auto-detection is enabled
+   
+   **After first deployment:**
+   - Update `NEXTAUTH_URL` to your actual Vercel URL: `https://your-actual-app.vercel.app`
+   - Also update `APP_URL` to match
+   - If using Google OAuth, update the redirect URI in Google Cloud Console to match
+
+6. **Deploy:**
    - Click "Deploy"
    - Wait for the build to complete
    - Your app will be available at `https://your-app.vercel.app`
+   - **After deployment:** Update `NEXTAUTH_URL` and `APP_URL` if you used placeholders
 
 ### Option B: Deploy via Vercel CLI
 
@@ -327,8 +346,11 @@ All credentials are embedded in the connection string, so your application code 
 - **Check signature verification:** Ensure `STACKONE_WEBHOOK_SECRET` is set correctly
 - **Test webhook:** Use StackOne's webhook testing feature or check Vercel function logs
 
-### OAuth Issues
+### NextAuth / Authentication Issues
 
+- **NEXTAUTH_SECRET missing:** This is REQUIRED. Generate it with `openssl rand -base64 32` before deploying
+- **NEXTAUTH_URL not set:** NextAuth can auto-detect on Vercel, but it's recommended to set it explicitly. Enable "Automatically expose System Environment Variables" in Vercel settings, or set `NEXTAUTH_URL` manually
+- **OAuth callback 404 errors:** Ensure `NEXTAUTH_URL` is set correctly and matches your actual Vercel domain (no trailing slash)
 - **Redirect URI mismatch:** Ensure the redirect URI in Google OAuth matches exactly: `https://your-app.vercel.app/api/auth/callback/google`
 - **Credentials:** Verify `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` are correct
 
@@ -336,18 +358,18 @@ All credentials are embedded in the connection string, so your application code 
 
 ### Required
 
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `DATABASE_URL` | PostgreSQL connection string from marketplace database (Neon, Supabase, etc.) | `postgres://user:pass@host:5432/db` |
-| `OPENAI_API_KEY` | OpenAI API key | `sk-...` |
-| `OPENAI_CHAT_MODEL` | Model for chat responses | `gpt-4o` |
-| `OPENAI_EMBEDDING_MODEL` | Model for embeddings | `text-embedding-3-small` |
-| `OPENAI_EMBEDDING_DIMENSIONS` | Embedding dimensions | `1536` |
-| `STACKONE_API_KEY` | StackOne API key | `...` |
-| `NEXTAUTH_SECRET` | Secret for NextAuth.js | Generate with `openssl rand -base64 32` |
-| `NEXTAUTH_URL` | Your app's public URL | `https://your-app.vercel.app` |
-| `APP_URL` | Your app's public URL | `https://your-app.vercel.app` |
-| `AVAILABLE_INTEGRATIONS` | Comma-separated list of integrations | `googledrive,googledocs,googlesheets` |
+| Variable | Description | How to Get It | Example |
+|----------|-------------|---------------|---------|
+| `DATABASE_URL` | PostgreSQL connection string from marketplace database (Neon, Supabase, etc.) | From Vercel Marketplace database dashboard | `postgres://user:pass@host:5432/db` |
+| `OPENAI_API_KEY` | OpenAI API key | From [OpenAI Platform](https://platform.openai.com/api-keys) | `sk-...` |
+| `OPENAI_CHAT_MODEL` | Model for chat responses | Choose from available models | `gpt-4o` |
+| `OPENAI_EMBEDDING_MODEL` | Model for embeddings | Choose from available models | `text-embedding-3-small` |
+| `OPENAI_EMBEDDING_DIMENSIONS` | Embedding dimensions | Must match your model | `1536` |
+| `STACKONE_API_KEY` | StackOne API key | From [StackOne Dashboard](https://stackone.com) | `v1.uk1...` |
+| `NEXTAUTH_SECRET` | **REQUIRED** - Secret for NextAuth.js JWT signing | **Generate BEFORE deployment:** `openssl rand -base64 32` | `abc123...` (64+ chars) |
+| `NEXTAUTH_URL` | **Recommended** - Your app's public URL for OAuth callbacks | **Before deploy:** Use placeholder `https://your-app-name.vercel.app`<br>**After deploy:** Update to actual URL | `https://your-app.vercel.app` |
+| `APP_URL` | Your app's public URL | Same as `NEXTAUTH_URL` | `https://your-app.vercel.app` |
+| `AVAILABLE_INTEGRATIONS` | Comma-separated list of integrations | Configure based on your StackOne project | `googledrive,googledocs,googlesheets` |
 
 ### Optional
 
