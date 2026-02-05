@@ -98,12 +98,11 @@ You can also use other PostgreSQL providers from the Vercel Marketplace (e.g., P
 2. **Configure the project:**
    - **Framework Preset:** Next.js
    - **Root Directory:** `apps/rag-knowledge-agent`
-   - **Build Command:** `cd ../.. && npm install && npm run build --filter=rag-knowledge-agent` (or use Turborepo)
+   - **Build Command:** `npm run build` (default)
    - **Output Directory:** `.next` (default)
-   - **Install Command:** `cd ../.. && npm install` (install from root for Turborepo)
-   - **OR** for simpler setup, keep root directory as `apps/rag-knowledge-agent` and use:
-     - **Build Command:** `npm run build` (default)
-     - **Install Command:** `npm install` (default)
+   - **Install Command:** `npm install` (default)
+   
+   **Note:** The root `.npmrc` file is configured with `legacy-peer-deps=true` to handle React 19 compatibility with `@stackone/react-hub` (which requires React 18). Vercel will automatically use this configuration when installing dependencies.
 
 3. **Add Environment Variables:**
    Click "Environment Variables" and add the following:
