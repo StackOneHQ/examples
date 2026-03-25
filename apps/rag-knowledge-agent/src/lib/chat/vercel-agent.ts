@@ -35,7 +35,7 @@ export interface VercelAgentResult {
 
 /**
  * Agent implementation using Vercel AI SDK ToolLoopAgent.
- * RAG via getInformationFromRAG tool; StackOne actions via tool_search + tool_execute.
+ * RAG via getInformationFromRAG tool; StackOne actions via stackone_search + stackone_execute.
  */
 export async function* runVercelAgent(
   userMessage: string,
@@ -51,11 +51,11 @@ export async function* runVercelAgent(
   const { documentIds, accountIds, documentContext, userId, messageHistory, maxTurns = 10 } = options
   const ragService = new RAGService()
 
-  // StackOne utility tools (tool_search + tool_execute): model discovers tools via search, then executes by name
+  // StackOne utility tools (stackone_search + stackone_execute): model discovers tools via search, then executes by name
   console.log('[Agent] Loading utility tools', { accountIds: accountIds.length, hasApiKey: !!process.env.STACKONE_API_KEY })
   if (accountIds.length === 0) {
     console.warn(
-      '[Agent] No StackOne account IDs for this agent — tool_search/tool_execute are disabled. Link integrations to the agent (with a connected StackOne account) and ensure STACKONE_API_KEY is set.'
+      '[Agent] No StackOne account IDs for this agent — stackone_search/stackone_execute are disabled. Link integrations to the agent (with a connected StackOne account) and ensure STACKONE_API_KEY is set.'
     )
   }
 
@@ -65,7 +65,7 @@ export async function* runVercelAgent(
   console.log('[Agent] Utility tools result', { hasActionTools, toolNames: Object.keys(aiSdkUtilityTools) })
   if (accountIds.length > 0 && !hasActionTools) {
     console.error(
-      '[Agent] StackOne utility tools failed to load (empty tool_search/tool_execute). Check STACKONE_API_KEY, STACKONE_BASE_URL, and server logs from getStackOneUtilityToolsForAISDK.'
+      '[Agent] StackOne utility tools failed to load (empty stackone_search/stackone_execute). Check STACKONE_API_KEY, STACKONE_BASE_URL, and server logs from getStackOneUtilityToolsForAISDK.'
     )
   }
 
@@ -73,11 +73,11 @@ export async function* runVercelAgent(
 
 **getInformationFromRAG** – Use when the user asks a question about their documents, when you need to read or search document content, or when you need a document identifier (remote_document_id) or current content to perform an action. Do not use when the request does not involve the user's documents or when you already have the needed content or ids from context.
 
-**tool_search** – Use when the user wants to perform an action on their connected apps or documents (e.g. update a doc, list files, send something) and you need to find which provider tool can do it. Call with a natural-language description of the action; it returns matching tool names and their parameter schemas. Do not use for questions that only require reading or answering from document content—use getInformationFromRAG for that.
+**stackone_search** – Use when the user wants to perform an action on their connected apps or documents (e.g. update a doc, list files, send something) and you need to find which provider tool can do it. Call with a natural-language description of the action; it returns matching tool names and their parameter schemas. Do not use for questions that only require reading or answering from document content—use getInformationFromRAG for that.
 
-**tool_execute** – Use when you have chosen a provider tool (e.g. from tool_search) and need to run it. Pass the tool name and the parameters it expects. Use document ids (e.g. remote_document_id from RAG or Available Documents) and payloads that match the tool's schema. Do not use before you have identified the right tool (e.g. via tool_search) and have the required parameters.
+**stackone_execute** – Use when you have chosen a provider tool (e.g. from stackone_search) and need to run it. Pass the tool name and the parameters it expects. Use document ids (e.g. remote_document_id from RAG or Available Documents) and payloads that match the tool's schema. Do not use before you have identified the right tool (e.g. via stackone_search) and have the required parameters.
 
-**Critical:** When tool_search returns a list of tools, your very next action MUST be to call tool_execute with one of those tool names and parameters from the returned schema. Do NOT generate a text reply to the user until you have called tool_execute. Only report success or failure to the user after you have the actual result from tool_execute.
+**Critical:** When stackone_search returns a list of tools, your very next action MUST be to call stackone_execute with one of those tool names and parameters from the returned schema. Do NOT generate a text reply to the user until you have called stackone_execute. Only report success or failure to the user after you have the actual result from stackone_execute.
 
 Respond in natural language. After using tools, summarize outcomes for the user. If a tool returns an error, report it clearly and suggest what the user can check or try.`
 
@@ -106,7 +106,7 @@ Respond in natural language. If a tool returns an error, report it clearly.`
   })
   
   const ragTool = tool({
-    description: `Search and read the user's indexed documents. Returns an answer, sources (with document_name, remote_document_id, mime_type, content excerpt), and confidence. Use when: the user asks a question about their documents; you need to find or quote content from their documents; or you need a document identifier (remote_document_id) or current content to perform another action (e.g. with tool_execute). Do not use when: the request does not involve the user's documents; you already have the needed content or remote_document_id from earlier in the conversation or from Available Documents; or the user is only asking to perform an action (e.g. "update the doc") and you need to discover the right tool first—use tool_search for that, and call this only if you need document content or an id to fill the tool's parameters.`,
+    description: `Search and read the user's indexed documents. Returns an answer, sources (with document_name, remote_document_id, mime_type, content excerpt), and confidence. Use when: the user asks a question about their documents; you need to find or quote content from their documents; or you need a document identifier (remote_document_id) or current content to perform another action (e.g. with stackone_execute). Do not use when: the request does not involve the user's documents; you already have the needed content or remote_document_id from earlier in the conversation or from Available Documents; or the user is only asking to perform an action (e.g. "update the doc") and you need to discover the right tool first—use stackone_search for that, and call this only if you need document content or an id to fill the tool's parameters.`,
     inputSchema: ragToolParameters,
     execute: async ({ question }) => {
       let ragContent = ''
@@ -169,13 +169,13 @@ Respond in natural language. If a tool returns an error, report it clearly.`
     prepareStep: ({ steps, stepNumber }) => {
       const lastStep = steps.length > 0 ? steps[steps.length - 1] : null
       const lastStepHadToolSearch =
-        lastStep?.toolCalls?.some((tc: { toolName: string }) => tc.toolName === 'tool_search')
+        lastStep?.toolCalls?.some((tc: { toolName: string }) => tc.toolName === 'stackone_search')
       const toolNames = lastStep?.toolCalls?.map((tc: { toolName: string }) => tc.toolName) ?? []
       logger.log('[Agent prepareStep]', { stepNumber, stepsLength: steps.length, toolNames, lastStepHadToolSearch })
       if (stepNumber >= 1 && lastStepHadToolSearch) {
-        // Force tool_execute so the model must call it (not skip to text)
-        logger.log('[Agent prepareStep] Forcing tool_execute for next step')
-        return { toolChoice: { type: 'tool' as const, toolName: 'tool_execute' } }
+        // Force stackone_execute so the model must call it (not skip to text)
+        logger.log('[Agent prepareStep] Forcing stackone_execute for next step')
+        return { toolChoice: { type: 'tool' as const, toolName: 'stackone_execute' } }
       }
       return {}
     },
@@ -209,9 +209,9 @@ Respond in natural language. If a tool returns an error, report it clearly.`
         // Also yield status for backward compatibility
         if (part.toolName === 'getInformationFromRAG') {
           yield { type: 'status', status: 'Searching through your documents to find relevant information...' }
-        } else if (part.toolName === 'tool_search') {
+        } else if (part.toolName === 'stackone_search') {
           yield { type: 'status', status: 'Searching for relevant tools...' }
-        } else if (part.toolName === 'tool_execute') {
+        } else if (part.toolName === 'stackone_execute') {
           yield { type: 'status', status: 'Executing action...' }
         } else {
           const toolDisplayName = part.toolName

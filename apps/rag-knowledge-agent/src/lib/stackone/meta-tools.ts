@@ -255,7 +255,7 @@ async function getToolsForAccounts(accountIds: string[]) {
 }
 
 /**
- * Get StackOne utility tools (tool_search + tool_execute) in AI SDK format.
+ * Get StackOne utility tools (stackone_search + stackone_execute) in AI SDK format.
  * Uses @stackone/ai 2.4+ API: getSearchTool().search() for discovery,
  * fetchTools() + execute for execution. Keeps the search/execute pattern
  * to avoid flooding the model's context with all available tools.
@@ -282,20 +282,20 @@ export async function getStackOneUtilityToolsForAISDK(accountIds: string[]) {
       }),
       execute: async (args) => {
         const queryPreview = typeof args?.query === 'string' ? args.query.slice(0, 100) + (args.query.length > 100 ? '...' : '') : ''
-        console.log('[StackOne tools] tool_search called:', { query: queryPreview })
+        console.log('[StackOne tools] stackone_search called:', { query: queryPreview })
         try {
           const foundTools = await searchTool.search(args.query, { accountIds })
           const toolsList = foundTools.toArray().map((t: { name: string; description?: string }) => ({
             name: t.name,
             description: (t as { description?: string }).description,
           }))
-          console.log('[StackOne tools] tool_search result:', { toolCount: toolsList.length, tools: toolsList.map((t: { name: string }) => t.name) })
+          console.log('[StackOne tools] stackone_search result:', { toolCount: toolsList.length, tools: toolsList.map((t: { name: string }) => t.name) })
 
           const firstTool = toolsList[0]
           return {
             tools: toolsList,
             requiredNextAction: toolsList.length > 0
-              ? 'You MUST call tool_execute next with one of the tools above. Do not respond to the user with text until you have called tool_execute.'
+              ? 'You MUST call stackone_execute next with one of the tools above. Do not respond to the user with text until you have called stackone_execute.'
               : 'No matching tools found.',
             exampleCall: firstTool ? {
               toolName: firstTool.name,
@@ -303,16 +303,16 @@ export async function getStackOneUtilityToolsForAISDK(accountIds: string[]) {
             } : undefined,
           }
         } catch (error) {
-          console.error('[StackOne tools] tool_search error:', error instanceof Error ? error.message : error)
+          console.error('[StackOne tools] stackone_search error:', error instanceof Error ? error.message : error)
           return { error: error instanceof Error ? error.message : String(error) }
         }
       },
     })
 
     const toolExecuteAISDK = tool({
-      description: 'Use when you have identified a provider tool (e.g. from tool_search) and have the parameters it expects. Use remote_document_id or ids from RAG/Available Documents where the tool expects a document id.',
+      description: 'Use when you have identified a provider tool (e.g. from stackone_search) and have the parameters it expects. Use remote_document_id or ids from RAG/Available Documents where the tool expects a document id.',
       inputSchema: z.object({
-        toolName: z.string().describe('Name of the tool to execute (from tool_search results)'),
+        toolName: z.string().describe('Name of the tool to execute (from stackone_search results)'),
         params: z.record(z.string(), z.unknown()).optional().describe('Parameters to pass to the tool'),
         parameters: z.record(z.string(), z.unknown()).optional().describe('Alias for params (same as params)'),
       }),
@@ -322,28 +322,28 @@ export async function getStackOneUtilityToolsForAISDK(accountIds: string[]) {
         const params = (paramsObj?.params && typeof paramsObj.params === 'object' ? paramsObj.params : null)
           ?? (paramsObj?.parameters && typeof paramsObj.parameters === 'object' ? paramsObj.parameters : null)
           ?? {}
-        console.log('[StackOne tools] tool_execute called:', { toolName, paramKeys: Object.keys(params) })
+        console.log('[StackOne tools] stackone_execute called:', { toolName, paramKeys: Object.keys(params) })
         try {
           // Fetch the specific tool by action name and execute it
           const tools = await toolset.fetchTools({ actions: [toolName], accountIds })
           const targetTool = tools.getTool(toolName)
           if (!targetTool) {
-            console.error('[StackOne tools] tool_execute: tool not found:', toolName)
+            console.error('[StackOne tools] stackone_execute: tool not found:', toolName)
             return { error: `Tool ${toolName} not found` }
           }
           const result = await targetTool.execute(params as JsonObject)
-          console.log('[StackOne tools] tool_execute result:', { toolName, success: true })
+          console.log('[StackOne tools] stackone_execute result:', { toolName, success: true })
           return result
         } catch (error) {
-          console.error('[StackOne tools] tool_execute error:', { toolName, error: error instanceof Error ? error.message : String(error) })
+          console.error('[StackOne tools] stackone_execute error:', { toolName, error: error instanceof Error ? error.message : String(error) })
           return { error: error instanceof Error ? error.message : String(error) }
         }
       },
     })
 
     return {
-      tool_search: toolSearchAISDK,
-      tool_execute: toolExecuteAISDK,
+      stackone_search: toolSearchAISDK,
+      stackone_execute: toolExecuteAISDK,
     }
   } catch (error) {
     console.error('[StackOne tools] Failed to get utility tools for AI SDK:', error instanceof Error ? { message: error.message, stack: error.stack } : error)
@@ -397,7 +397,7 @@ export async function getAvailableToolsForLLM(accountIds: string[]): Promise<Arr
 }
 
 /**
- * Build an enriched query for tool_search when we have document context (names, remote IDs, mime types, URLs).
+ * Build an enriched query for stackone_search when we have document context (names, remote IDs, mime types, URLs).
  */
 function buildSearchQueryWithDocumentContext(
   userMessage: string,
@@ -412,7 +412,7 @@ function buildSearchQueryWithDocumentContext(
 }
 
 /**
- * Search for tools matching a natural language query using tool_search.
+ * Search for tools matching a natural language query using stackone_search.
  * Tools are scoped to the given account IDs (StackOne returns only tools for those accounts).
  * Optionally pass documentContext to enrich the query and use a lower minScore so update-style messages match.
  * @unused Legacy function from old agent-loop implementation. Not used by current ToolLoopAgent-based agent.
@@ -429,13 +429,13 @@ export async function searchFileTools(
   try {
     const tools = await getToolsForAccounts(accountIds)
     const utilityTools = await tools.utilityTools()
-    const searchTool = utilityTools.getTool('tool_search')
+    const searchTool = utilityTools.getTool('stackone_search')
     if (!searchTool) {
-      logger.warn('[StackOne tools] tool_search not available')
+      logger.warn('[StackOne tools] stackone_search not available')
       return []
     }
     const queryPreview = searchQuery.slice(0, 120) + (searchQuery.length > 120 ? '...' : '')
-    logger.log('[StackOne tools] tool_search called:', { query: queryPreview, limit, minScore })
+    logger.log('[StackOne tools] stackone_search called:', { query: queryPreview, limit, minScore })
     const result = (await searchTool.execute({
       query: searchQuery,
       limit,
@@ -443,7 +443,7 @@ export async function searchFileTools(
     })) as { tools?: UtilityToolsSearchResult[]; [key: string]: unknown }
     const rawList = result.tools ?? []
     const list = rawList.filter(t => isActionableTool(t.name))
-    logger.log('[StackOne tools] tool_search result:', { toolCount: list.length, tools: list.map(t => t.name) })
+    logger.log('[StackOne tools] stackone_search result:', { toolCount: list.length, tools: list.map(t => t.name) })
     return list
   } catch (error) {
     logger.error('[StackOne tools] search failed:', error)
@@ -462,7 +462,7 @@ export async function executeStackOneTool(
   params: Record<string, unknown> = {},
   documentContext?: DocumentContextItem[]
 ): Promise<{ data?: unknown; error?: string }> {
-  logger.log('[StackOne tools] tool_execute called:', { toolName, paramKeys: Object.keys(params || {}) })
+  logger.log('[StackOne tools] stackone_execute called:', { toolName, paramKeys: Object.keys(params || {}) })
   if (accountIds.length === 0) {
     return { error: 'No account IDs provided' }
   }
@@ -496,9 +496,9 @@ export async function executeStackOneTool(
 
     const tools = await getToolsForAccounts(accountIdsToUse)
     const utilityTools = await tools.utilityTools()
-    const executeTool = utilityTools.getTool('tool_execute')
+    const executeTool = utilityTools.getTool('stackone_execute')
     if (!executeTool) {
-      return { error: 'tool_execute not available' }
+      return { error: 'stackone_execute not available' }
     }
     
     // Verify the tool is available before executing
@@ -521,11 +521,11 @@ export async function executeStackOneTool(
     }
     
     const data = await executeTool.execute(executeParams as JsonObject)
-    logger.log('[StackOne tools] tool_execute result:', { toolName, success: true })
+    logger.log('[StackOne tools] stackone_execute result:', { toolName, success: true })
     return { data }
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Tool execution failed'
-    logger.log('[StackOne tools] tool_execute result:', { toolName, success: false, error: message })
+    logger.log('[StackOne tools] stackone_execute result:', { toolName, success: false, error: message })
     return { error: message }
   }
 }

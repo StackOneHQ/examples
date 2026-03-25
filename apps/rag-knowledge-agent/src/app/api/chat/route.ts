@@ -151,7 +151,7 @@ export async function POST(request: NextRequest) {
             .map((i) => i.stackone_account_id)
             .filter((id): id is string => Boolean(id))
 
-          // Only MCP-compatible accounts for action tools (tool_search/tool_execute)
+          // Only MCP-compatible accounts for action tools (stackone_search/stackone_execute)
           // Legacy accounts (not in AVAILABLE_INTEGRATION_VERSIONS) will cause MCP errors
           const accountIds = mcpProviders.size > 0
             ? integrations
@@ -241,13 +241,13 @@ export async function POST(request: NextRequest) {
                   if (toolResults.length > 0) {
                     metadata.toolResults = toolResults
                     // Include tool context in metadata (not content) so next turn the model can see what was done
-                    // This avoids redundant RAG/tool_search while keeping user-facing content clean
+                    // This avoids redundant RAG/stackone_search while keeping user-facing content clean
                     const parts = toolResults.map((t) => t.toolName + (t.error ? ' (error)' : ''))
-                    const searchResult = toolResults.find((t) => t.toolName === 'tool_search' && t.result && typeof t.result === 'object')
+                    const searchResult = toolResults.find((t) => t.toolName === 'stackone_search' && t.result && typeof t.result === 'object')
                     const toolsFromSearch = searchResult?.result && typeof searchResult.result === 'object' && 'tools' in searchResult.result
                       ? (searchResult.result as { tools?: Array<{ name: string }> }).tools?.map((x) => x.name).join(', ')
                       : null
-                    metadata.toolSummary = `${parts.join(', ')}${toolsFromSearch ? ` (tool_search returned: ${toolsFromSearch})` : ''}`
+                    metadata.toolSummary = `${parts.join(', ')}${toolsFromSearch ? ` (stackone_search returned: ${toolsFromSearch})` : ''}`
                   }
                   // Save only the clean user-facing content (no tool summary brackets)
                   const contentToSave = fullResponse.trim()
