@@ -162,7 +162,7 @@ Respond in natural language. If a tool returns an error, report it clearly.`
   yield { type: 'status', status: 'Analyzing your question and planning the best approach...' }
 
   const agent = new ToolLoopAgent({
-    model: openai(process.env.OPENAI_CHAT_MODEL || 'gpt-4o'),
+    model: openai(process.env.OPENAI_CHAT_MODEL || 'gpt-4.1-mini'),
     instructions: enhancedSystemPrompt,
     tools: allTools,
     stopWhen: stepCountIs(maxTurns),
