@@ -51,33 +51,34 @@ export async function* runVercelAgent(
   const { documentIds, accountIds, documentContext, userId, messageHistory, maxTurns = 10 } = options
   const ragService = new RAGService()
 
-  // StackOne utility tools (tool_search + tool_execute): model discovers tools via search, then executes by name
-  console.log('[Agent] Loading utility tools', { accountIds: accountIds.length, hasApiKey: !!process.env.STACKONE_API_KEY })
+  // StackOne action tools: fetched via MCP, converted to AI SDK format with toAISDK()
+  console.log('[Agent] Loading action tools', { accountIds: accountIds.length, hasApiKey: !!process.env.STACKONE_API_KEY })
   if (accountIds.length === 0) {
     console.warn(
-      '[Agent] No StackOne account IDs for this agent — tool_search/tool_execute are disabled. Link integrations to the agent (with a connected StackOne account) and ensure STACKONE_API_KEY is set.'
+      '[Agent] No StackOne account IDs for this agent — action tools are disabled. Link integrations to the agent (with a connected StackOne account) and ensure STACKONE_API_KEY is set.'
     )
   }
 
   const aiSdkUtilityTools = accountIds.length > 0 ? await getStackOneUtilityToolsForAISDK(accountIds) : {}
 
   const hasActionTools = Object.keys(aiSdkUtilityTools).length > 0
-  console.log('[Agent] Utility tools result', { hasActionTools, toolNames: Object.keys(aiSdkUtilityTools) })
+  const actionToolNames = Object.keys(aiSdkUtilityTools)
+  console.log('[Agent] Action tools result', { hasActionTools, toolCount: actionToolNames.length, tools: actionToolNames.slice(0, 10) })
   if (accountIds.length > 0 && !hasActionTools) {
     console.error(
-      '[Agent] StackOne utility tools failed to load (empty tool_search/tool_execute). Check STACKONE_API_KEY, STACKONE_BASE_URL, and server logs from getStackOneUtilityToolsForAISDK.'
+      '[Agent] StackOne action tools failed to load. Check STACKONE_API_KEY, STACKONE_BASE_URL, and server logs from getStackOneUtilityToolsForAISDK.'
     )
   }
 
-  const systemPromptWithActions = `You are a helpful AI assistant with access to the following tools. Use each when appropriate:
+  const actionToolList = hasActionTools
+    ? actionToolNames.map((name) => `**${name}**`).join(', ')
+    : ''
 
-**getInformationFromRAG** – Use when the user asks a question about their documents, when you need to read or search document content, or when you need a document identifier (remote_document_id) or current content to perform an action. Do not use when the request does not involve the user's documents or when you already have the needed content or ids from context.
+  const systemPromptWithActions = `You are a helpful AI assistant with access to tools for searching documents and performing actions on connected apps.
 
-**tool_search** – Use when the user wants to perform an action on their connected apps or documents (e.g. update a doc, list files, send something) and you need to find which provider tool can do it. Call with a natural-language description of the action; it returns matching tool names and their parameter schemas. Do not use for questions that only require reading or answering from document content—use getInformationFromRAG for that.
+**getInformationFromRAG** – Use when the user asks a question about their documents, when you need to read or search document content, or when you need a document identifier (remote_document_id) or current content to perform an action.
 
-**tool_execute** – Use when you have chosen a provider tool (e.g. from tool_search) and need to run it. Pass the tool name and the parameters it expects. Use document ids (e.g. remote_document_id from RAG or Available Documents) and payloads that match the tool's schema. Do not use before you have identified the right tool (e.g. via tool_search) and have the required parameters.
-
-**Critical:** When tool_search returns a list of tools, your very next action MUST be to call tool_execute with one of those tool names and parameters from the returned schema. Do NOT generate a text reply to the user until you have called tool_execute. Only report success or failure to the user after you have the actual result from tool_execute.
+**Action tools** – You also have access to these provider action tools: ${actionToolList}. Use them when the user wants to perform an action on their connected apps or documents (e.g. update a doc, list files, send something). Each tool has its own parameters — use document ids (e.g. remote_document_id from RAG or Available Documents) where the tool expects them.
 
 Respond in natural language. After using tools, summarize outcomes for the user. If a tool returns an error, report it clearly and suggest what the user can check or try.`
 
@@ -166,19 +167,6 @@ Respond in natural language. If a tool returns an error, report it clearly.`
     instructions: enhancedSystemPrompt,
     tools: allTools,
     stopWhen: stepCountIs(maxTurns),
-    prepareStep: ({ steps, stepNumber }) => {
-      const lastStep = steps.length > 0 ? steps[steps.length - 1] : null
-      const lastStepHadToolSearch =
-        lastStep?.toolCalls?.some((tc: { toolName: string }) => tc.toolName === 'tool_search')
-      const toolNames = lastStep?.toolCalls?.map((tc: { toolName: string }) => tc.toolName) ?? []
-      logger.log('[Agent prepareStep]', { stepNumber, stepsLength: steps.length, toolNames, lastStepHadToolSearch })
-      if (stepNumber >= 1 && lastStepHadToolSearch) {
-        // Force tool_execute so the model must call it (not skip to text)
-        logger.log('[Agent prepareStep] Forcing tool_execute for next step')
-        return { toolChoice: { type: 'tool' as const, toolName: 'tool_execute' } }
-      }
-      return {}
-    },
   })
 
   const result = await agent.stream({ messages })
@@ -209,10 +197,6 @@ Respond in natural language. If a tool returns an error, report it clearly.`
         // Also yield status for backward compatibility
         if (part.toolName === 'getInformationFromRAG') {
           yield { type: 'status', status: 'Searching through your documents to find relevant information...' }
-        } else if (part.toolName === 'tool_search') {
-          yield { type: 'status', status: 'Searching for relevant tools...' }
-        } else if (part.toolName === 'tool_execute') {
-          yield { type: 'status', status: 'Executing action...' }
         } else {
           const toolDisplayName = part.toolName
             .replace(/googledocs_/g, 'Google Docs: ')
