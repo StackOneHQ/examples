@@ -41,8 +41,8 @@ export async function POST(request: NextRequest) {
     }
 
     const integrations = integrationIds.length > 0
-      ? await query<{ id: string; stackone_account_id: string }>(
-          `SELECT id, stackone_account_id FROM integrations WHERE id = ANY($1::uuid[])`,
+      ? await query<{ id: string; stackone_account_id: string; provider: string }>(
+          `SELECT id, stackone_account_id, provider FROM integrations WHERE id = ANY($1::uuid[])`,
           [integrationIds]
         )
       : []
@@ -130,15 +130,44 @@ export async function POST(request: NextRequest) {
             logger.log('Skipping user message save - no thread context')
           }
 
-          const accountIds = integrations
+          // Parse AVAILABLE_INTEGRATION_VERSIONS to identify MCP-compatible providers
+          // Format: "googledrive:1.0,googlesheets:1.0" — only these support realtime actions via MCP
+          const mcpProviders = new Set<string>()
+          const versionsRaw = process.env.AVAILABLE_INTEGRATION_VERSIONS
+          if (versionsRaw?.trim()) {
+            for (const part of versionsRaw.split(',')) {
+              const trimmed = part.trim()
+              if (!trimmed) continue
+              const sep = trimmed.includes(':') ? ':' : '='
+              const i = trimmed.indexOf(sep)
+              if (i === -1) continue
+              const provider = trimmed.slice(0, i).trim().toLowerCase()
+              if (provider) mcpProviders.add(provider)
+            }
+          }
+
+          // All account IDs (for RAG context — legacy accounts can still provide documents)
+          const allAccountIds = integrations
             .map((i) => i.stackone_account_id)
             .filter((id): id is string => Boolean(id))
 
+          // Only MCP-compatible accounts for action tools (tool_search/tool_execute)
+          // Legacy accounts (not in AVAILABLE_INTEGRATION_VERSIONS) will cause MCP errors
+          const accountIds = mcpProviders.size > 0
+            ? integrations
+                .filter((i) => mcpProviders.has(i.provider.toLowerCase()))
+                .map((i) => i.stackone_account_id)
+                .filter((id): id is string => Boolean(id))
+            : allAccountIds  // If no versions configured, pass all (backward compatible)
+
+          const skippedLegacy = allAccountIds.length - accountIds.length
           console.log('[Chat API] Starting agent loop', {
             integrationIdsFromAgent: integrationIds.length,
             integrationsFound: integrations.length,
-            accountIds: accountIds.length,
-            accountIdPreviews: accountIds.map(id => id.slice(0, 12) + '...'),
+            allAccountIds: allAccountIds.length,
+            mcpAccountIds: accountIds.length,
+            skippedLegacyAccounts: skippedLegacy,
+            mcpProviders: [...mcpProviders],
             documentIds: documentIds.length,
             documentContext: documentContext.length,
             hasStackOneApiKey: !!process.env.STACKONE_API_KEY,
