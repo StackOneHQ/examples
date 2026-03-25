@@ -256,103 +256,86 @@ async function getToolsForAccounts(accountIds: string[]) {
 
 /**
  * Get StackOne utility tools (tool_search + tool_execute) in AI SDK format.
- * We build the AI SDK tools here using the app's `ai` package instead of calling
- * utilityTools.toAISDK(), which uses a dynamic import('ai') that can fail in Next.js
- * server bundles (e.g. "ai is not installed").
+ * Uses @stackone/ai 2.4+ API: getSearchTool().search() for discovery,
+ * fetchTools() + execute for execution. Keeps the search/execute pattern
+ * to avoid flooding the model's context with all available tools.
  */
 export async function getStackOneUtilityToolsForAISDK(accountIds: string[]) {
   if (accountIds.length === 0) return {}
   try {
-    console.log('[StackOne tools] getStackOneUtilityToolsForAISDK: fetching tools...')
-    const tools = await getToolsForAccounts(accountIds)
-    console.log('[StackOne tools] getStackOneUtilityToolsForAISDK: calling utilityTools()...')
-    const utilityTools = await tools.utilityTools()
-    console.log('[StackOne tools] getStackOneUtilityToolsForAISDK: getting tool_search and tool_execute...')
-    const searchTool = utilityTools.getTool('tool_search')
-    const executeTool = utilityTools.getTool('tool_execute')
-    console.log('[StackOne tools] getStackOneUtilityToolsForAISDK:', { hasSearchTool: !!searchTool, hasExecuteTool: !!executeTool })
-    if (!searchTool || !executeTool) {
-      console.error('[StackOne tools] tool_search or tool_execute not available from utilityTools()')
+    if (!process.env.STACKONE_API_KEY) {
+      console.error('[StackOne tools] STACKONE_API_KEY is not configured')
       return {}
     }
 
+    const baseUrl = process.env.STACKONE_BASE_URL ?? 'https://api.stackone.com'
+    const toolset = new StackOneToolSet({ baseUrl })
+    toolset.setAccounts(accountIds)
+    const searchTool = toolset.getSearchTool()
+
+    console.log('[StackOne tools] getStackOneUtilityToolsForAISDK: toolset created, searchTool ready')
+
     const toolSearchAISDK = tool({
-      description: `Use when the user wants to perform an action (e.g. update a doc, list files, send data) and you need to find which tool can do it. Do not use for questions that only need reading document content—use getInformationFromRAG for that. — ${searchTool.description}`,
+      description: 'Use when the user wants to perform an action on their connected apps or documents (e.g. update a doc, list files, send something) and you need to find which provider tool can do it. Do not use for questions that only need reading document content—use getInformationFromRAG for that.',
       inputSchema: z.object({
         query: z.string().describe('Natural language query describing what tools you need'),
-        limit: z.number().optional().default(5).describe('Maximum number of tools to return'),
-        minScore: z.number().optional().default(0.3).describe('Minimum relevance score (0-1) for results'),
       }),
       execute: async (args) => {
         const queryPreview = typeof args?.query === 'string' ? args.query.slice(0, 100) + (args.query.length > 100 ? '...' : '') : ''
-        logger.log('[StackOne tools] tool_search (AI SDK) called:', { query: queryPreview, limit: args?.limit, minScore: args?.minScore })
+        console.log('[StackOne tools] tool_search called:', { query: queryPreview })
         try {
-          const result = await searchTool.execute(args as JsonObject)
-          const toolsList = result && typeof result === 'object' && 'tools' in result && Array.isArray((result as { tools?: unknown }).tools)
-            ? (result as { tools: Array<{ name: string; description?: string; parameters?: unknown }> }).tools
-            : []
-          logger.log('[StackOne tools] tool_search (AI SDK) result:', { toolCount: toolsList.length, tools: toolsList.map((t: { name: string }) => t.name) })
-          // Require the model to call tool_execute next; give concrete example so it does not skip to text
+          const foundTools = await searchTool.search(args.query, { accountIds })
+          const toolsList = foundTools.toArray().map((t: { name: string; description?: string }) => ({
+            name: t.name,
+            description: (t as { description?: string }).description,
+          }))
+          console.log('[StackOne tools] tool_search result:', { toolCount: toolsList.length, tools: toolsList.map((t: { name: string }) => t.name) })
+
           const firstTool = toolsList[0]
-          const requiredNext =
-            toolsList.length > 0
-              ? {
-                  ...(result as object),
-                  requiredNextAction: 'You MUST call tool_execute next with one of the tools above. Do not respond to the user with text until you have called tool_execute.',
-                  exampleCall: {
-                    toolName: firstTool.name,
-                    params: 'Use the "parameters" schema from the tool above. For document id use remote_document_id from Available Documents or RAG sources.',
-                  },
-                }
-              : result
-          const debugPayloads = DEBUG_SDK || process.env.DEBUG_TOOLS === '1' || process.env.DEBUG === '1' || process.env.DEBUG_CHAT === '1'
-          if (debugPayloads) {
-            const out = JSON.stringify(requiredNext, null, 0)
-            logger.log('[StackOne tools] tool_search (AI SDK) full result to model:', out.length > 2500 ? out.slice(0, 2500) + '...[truncated]' : out)
+          return {
+            tools: toolsList,
+            requiredNextAction: toolsList.length > 0
+              ? 'You MUST call tool_execute next with one of the tools above. Do not respond to the user with text until you have called tool_execute.'
+              : 'No matching tools found.',
+            exampleCall: firstTool ? {
+              toolName: firstTool.name,
+              params: 'Use the parameter schema from the tool. For document id use remote_document_id from Available Documents or RAG sources.',
+            } : undefined,
           }
-          return requiredNext as JsonObject
         } catch (error) {
-          console.error('[StackOne tools] tool_search (AI SDK) error:', error instanceof Error ? error.message : error)
+          console.error('[StackOne tools] tool_search error:', error instanceof Error ? error.message : error)
           return { error: error instanceof Error ? error.message : String(error) }
         }
       },
     })
 
     const toolExecuteAISDK = tool({
-      description: `Use when you have identified a provider tool (e.g. from tool_search) and have the parameters it expects. Use remote_document_id or ids from RAG/Available Documents where the tool expects a document id. — ${executeTool.description}`,
+      description: 'Use when you have identified a provider tool (e.g. from tool_search) and have the parameters it expects. Use remote_document_id or ids from RAG/Available Documents where the tool expects a document id.',
       inputSchema: z.object({
-        toolName: z.string().describe('Name of the tool to execute'),
+        toolName: z.string().describe('Name of the tool to execute (from tool_search results)'),
         params: z.record(z.string(), z.unknown()).optional().describe('Parameters to pass to the tool'),
         parameters: z.record(z.string(), z.unknown()).optional().describe('Alias for params (same as params)'),
       }),
       execute: async (args) => {
         const toolName = typeof args?.toolName === 'string' ? args.toolName : '<unknown>'
-        // Accept both 'params' and 'parameters' (model may send either)
         const paramsObj = args as { params?: Record<string, unknown>; parameters?: Record<string, unknown> }
-        const params = (paramsObj?.params && typeof paramsObj.params === 'object' ? paramsObj.params : null) 
-          ?? (paramsObj?.parameters && typeof paramsObj.parameters === 'object' ? paramsObj.parameters : null) 
+        const params = (paramsObj?.params && typeof paramsObj.params === 'object' ? paramsObj.params : null)
+          ?? (paramsObj?.parameters && typeof paramsObj.parameters === 'object' ? paramsObj.parameters : null)
           ?? {}
-        const payload = { toolName, params: params as JsonObject } as JsonObject
-        const paramKeys = Object.keys(params)
-        logger.log('[StackOne tools] tool_execute (AI SDK) called:', { toolName, paramKeys })
-        const debugPayloads = DEBUG_SDK || process.env.DEBUG_TOOLS === '1' || process.env.DEBUG === '1' || process.env.DEBUG_CHAT === '1'
-        if (debugPayloads) {
-          const inStr = JSON.stringify(payload, null, 0)
-          logger.log('[StackOne tools] tool_execute (AI SDK) full input:', inStr.length > 2000 ? inStr.slice(0, 2000) + '...[truncated]' : inStr)
-        }
+        console.log('[StackOne tools] tool_execute called:', { toolName, paramKeys: Object.keys(params) })
         try {
-          const result = await executeTool.execute(payload)
-          logger.log('[StackOne tools] tool_execute (AI SDK) result:', { toolName, success: true })
-          if (debugPayloads) {
-            const outStr = JSON.stringify(result, null, 0)
-            logger.log('[StackOne tools] tool_execute (AI SDK) full output:', outStr.length > 2000 ? outStr.slice(0, 2000) + '...[truncated]' : outStr)
+          // Fetch the specific tool by action name and execute it
+          const tools = await toolset.fetchTools({ actions: [toolName], accountIds })
+          const targetTool = tools.getTool(toolName)
+          if (!targetTool) {
+            console.error('[StackOne tools] tool_execute: tool not found:', toolName)
+            return { error: `Tool ${toolName} not found` }
           }
+          const result = await targetTool.execute(params as JsonObject)
+          console.log('[StackOne tools] tool_execute result:', { toolName, success: true })
           return result
         } catch (error) {
-          console.error('[StackOne tools] tool_execute (AI SDK) error:', { toolName, error: error instanceof Error ? error.message : String(error) })
-          if (debugPayloads) {
-            console.error('[StackOne tools] tool_execute (AI SDK) error detail:', error)
-          }
+          console.error('[StackOne tools] tool_execute error:', { toolName, error: error instanceof Error ? error.message : String(error) })
           return { error: error instanceof Error ? error.message : String(error) }
         }
       },
