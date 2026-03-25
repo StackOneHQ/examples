@@ -285,21 +285,22 @@ export async function getStackOneUtilityToolsForAISDK(accountIds: string[]) {
         console.log('[StackOne tools] stackone_search called:', { query: queryPreview })
         try {
           const foundTools = await searchTool.search(args.query, { accountIds })
-          const toolsList = foundTools.toArray().map((t: { name: string; description?: string }) => ({
+          const toolsList = foundTools.toArray().map((t: { name: string; description?: string; parameters?: unknown }) => ({
             name: t.name,
             description: (t as { description?: string }).description,
+            parameters: (t as { parameters?: unknown }).parameters,
           }))
           console.log('[StackOne tools] stackone_search result:', { toolCount: toolsList.length, tools: toolsList.map((t: { name: string }) => t.name) })
 
           const firstTool = toolsList[0]
           return {
             tools: toolsList,
-            requiredNextAction: toolsList.length > 0
-              ? 'You MUST call stackone_execute next with one of the tools above. Do not respond to the user with text until you have called stackone_execute.'
+            instruction: toolsList.length > 0
+              ? `You MUST call stackone_execute next. Use the EXACT tool name from the list above (e.g. "${firstTool?.name}"), not a shortened version. Do not respond to the user with text until you have called stackone_execute.`
               : 'No matching tools found.',
             exampleCall: firstTool ? {
               toolName: firstTool.name,
-              params: 'Use the parameter schema from the tool. For document id use remote_document_id from Available Documents or RAG sources.',
+              params: 'Use the parameters schema from the tool above. For document id use remote_document_id from Available Documents or RAG sources.',
             } : undefined,
           }
         } catch (error) {
@@ -310,9 +311,9 @@ export async function getStackOneUtilityToolsForAISDK(accountIds: string[]) {
     })
 
     const toolExecuteAISDK = tool({
-      description: 'Use when you have identified a provider tool (e.g. from stackone_search) and have the parameters it expects. Use remote_document_id or ids from RAG/Available Documents where the tool expects a document id.',
+      description: 'Execute a provider tool found via stackone_search. You MUST use the EXACT full tool name from stackone_search results (e.g. "googledocs_update_document", not "updateDocument"). Use remote_document_id or ids from RAG/Available Documents where the tool expects a document id.',
       inputSchema: z.object({
-        toolName: z.string().describe('Name of the tool to execute (from stackone_search results)'),
+        toolName: z.string().describe('The EXACT full tool name from stackone_search results (e.g. "googledocs_update_document")'),
         params: z.record(z.string(), z.unknown()).optional().describe('Parameters to pass to the tool'),
         parameters: z.record(z.string(), z.unknown()).optional().describe('Alias for params (same as params)'),
       }),
@@ -326,10 +327,11 @@ export async function getStackOneUtilityToolsForAISDK(accountIds: string[]) {
         try {
           // Fetch the specific tool by action name and execute it
           const tools = await toolset.fetchTools({ actions: [toolName], accountIds })
+          const availableNames = tools.toArray().map((t: { name: string }) => t.name)
           const targetTool = tools.getTool(toolName)
           if (!targetTool) {
-            console.error('[StackOne tools] stackone_execute: tool not found:', toolName)
-            return { error: `Tool ${toolName} not found` }
+            console.error('[StackOne tools] stackone_execute: tool not found:', toolName, 'available:', availableNames)
+            return { error: `Tool "${toolName}" not found. Available tools: ${availableNames.join(', ')}. Use the exact name from stackone_search results.` }
           }
           const result = await targetTool.execute(params as JsonObject)
           console.log('[StackOne tools] stackone_execute result:', { toolName, success: true })
