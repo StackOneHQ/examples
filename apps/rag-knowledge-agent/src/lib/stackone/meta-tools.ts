@@ -269,9 +269,12 @@ export async function getStackOneUtilityToolsForAISDK(accountIds: string[]) {
     }
 
     const baseUrl = process.env.STACKONE_BASE_URL ?? 'https://api.stackone.com'
-    const toolset = new StackOneToolSet({ baseUrl })
+    const toolset = new StackOneToolSet({
+      baseUrl,
+      search: { method: 'auto', topK: 10 },
+    })
     toolset.setAccounts(accountIds)
-    const searchTool = toolset.getSearchTool()
+    const searchTool = toolset.getSearchTool({ search: 'auto' })
 
     console.log('[StackOne tools] getStackOneUtilityToolsForAISDK: toolset created, searchTool ready')
 
@@ -284,7 +287,7 @@ export async function getStackOneUtilityToolsForAISDK(accountIds: string[]) {
         const queryPreview = typeof args?.query === 'string' ? args.query.slice(0, 100) + (args.query.length > 100 ? '...' : '') : ''
         console.log('[StackOne tools] stackone_search called:', { query: queryPreview })
         try {
-          const foundTools = await searchTool.search(args.query, { accountIds })
+          const foundTools = await searchTool.search(args.query, { accountIds, topK: 10, minSimilarity: 0.2 })
           const toolsList = foundTools.toArray().map((t: { name: string; description?: string; parameters?: unknown }) => ({
             name: t.name,
             description: (t as { description?: string }).description,
