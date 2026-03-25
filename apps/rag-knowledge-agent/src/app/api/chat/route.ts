@@ -134,10 +134,14 @@ export async function POST(request: NextRequest) {
             .map((i) => i.stackone_account_id)
             .filter((id): id is string => Boolean(id))
 
-          logger.log('Chat API - Starting agent loop', {
-            documentIds: documentIds.length,
+          console.log('[Chat API] Starting agent loop', {
+            integrationIdsFromAgent: integrationIds.length,
+            integrationsFound: integrations.length,
             accountIds: accountIds.length,
+            accountIdPreviews: accountIds.map(id => id.slice(0, 12) + '...'),
+            documentIds: documentIds.length,
             documentContext: documentContext.length,
+            hasStackOneApiKey: !!process.env.STACKONE_API_KEY,
           })
 
           let fullResponse = ''

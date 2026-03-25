@@ -3,25 +3,20 @@
  * Set DEBUG=1 or DEBUG_CHAT=1 in .env.local to enable verbose logging.
  */
 
-const isDevelopment = process.env.NODE_ENV === 'development';
-const isDebug = isDevelopment && (process.env.DEBUG === '1' || process.env.DEBUG === 'true' || process.env.DEBUG_CHAT === '1' || process.env.DEBUG_CHAT === 'true');
+const isDebug = process.env.DEBUG === '1' || process.env.DEBUG === 'true' || process.env.DEBUG_CHAT === '1' || process.env.DEBUG_CHAT === 'true';
 
 export const logger = {
-  /** Only logs when DEBUG or DEBUG_CHAT is set (in dev). Use for verbose/trace. */
+  /** Only logs when DEBUG or DEBUG_CHAT is set. Use for verbose/trace. */
   log: (...args: unknown[]) => {
     if (isDebug) {
       console.log(...args);
     }
   },
   warn: (...args: unknown[]) => {
-    if (isDevelopment) {
-      console.warn(...args);
-    }
+    console.warn(...args);
   },
   error: (...args: unknown[]) => {
-    if (isDevelopment) {
-      console.error(...args);
-    }
+    console.error(...args);
   },
   info: (...args: unknown[]) => {
     if (isDebug) {

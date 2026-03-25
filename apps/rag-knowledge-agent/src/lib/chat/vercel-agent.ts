@@ -52,9 +52,24 @@ export async function* runVercelAgent(
   const ragService = new RAGService()
 
   // StackOne utility tools (tool_search + tool_execute): model discovers tools via search, then executes by name
+  console.log('[Agent] Loading utility tools', { accountIds: accountIds.length, hasApiKey: !!process.env.STACKONE_API_KEY })
+  if (accountIds.length === 0) {
+    console.warn(
+      '[Agent] No StackOne account IDs for this agent — tool_search/tool_execute are disabled. Link integrations to the agent (with a connected StackOne account) and ensure STACKONE_API_KEY is set.'
+    )
+  }
+
   const aiSdkUtilityTools = accountIds.length > 0 ? await getStackOneUtilityToolsForAISDK(accountIds) : {}
 
-  const systemPrompt = `You are a helpful AI assistant with access to the following tools. Use each when appropriate:
+  const hasActionTools = Object.keys(aiSdkUtilityTools).length > 0
+  console.log('[Agent] Utility tools result', { hasActionTools, toolNames: Object.keys(aiSdkUtilityTools) })
+  if (accountIds.length > 0 && !hasActionTools) {
+    console.error(
+      '[Agent] StackOne utility tools failed to load (empty tool_search/tool_execute). Check STACKONE_API_KEY, STACKONE_BASE_URL, and server logs from getStackOneUtilityToolsForAISDK.'
+    )
+  }
+
+  const systemPromptWithActions = `You are a helpful AI assistant with access to the following tools. Use each when appropriate:
 
 **getInformationFromRAG** – Use when the user asks a question about their documents, when you need to read or search document content, or when you need a document identifier (remote_document_id) or current content to perform an action. Do not use when the request does not involve the user's documents or when you already have the needed content or ids from context.
 
@@ -65,6 +80,16 @@ export async function* runVercelAgent(
 **Critical:** When tool_search returns a list of tools, your very next action MUST be to call tool_execute with one of those tool names and parameters from the returned schema. Do NOT generate a text reply to the user until you have called tool_execute. Only report success or failure to the user after you have the actual result from tool_execute.
 
 Respond in natural language. After using tools, summarize outcomes for the user. If a tool returns an error, report it clearly and suggest what the user can check or try.`
+
+  const systemPromptRagOnly = `You are a helpful AI assistant with access to **getInformationFromRAG** only (search/read indexed documents). You do **not** have tools to update Google Docs, Drive, or other live apps in this session.
+
+**getInformationFromRAG** – Use when the user asks about their documents, needs content or quotes, or needs a remote_document_id from indexed material.
+
+If the user asks to update, edit, or change a live document in a connected app, explain clearly that realtime actions require this agent to have StackOne integrations linked (with an active connection) and STACKONE_API_KEY configured on the server; you can still help using retrieved document content where applicable.
+
+Respond in natural language. If a tool returns an error, report it clearly.`
+
+  const systemPrompt = hasActionTools ? systemPromptWithActions : systemPromptRagOnly
 
   // Add document context to system prompt if available
   let enhancedSystemPrompt = systemPrompt

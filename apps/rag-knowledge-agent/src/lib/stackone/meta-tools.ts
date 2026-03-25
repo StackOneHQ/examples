@@ -238,16 +238,18 @@ export interface UtilityToolsResult {
  */
 async function getToolsForAccounts(accountIds: string[]) {
   if (!process.env.STACKONE_API_KEY) {
+    console.error('[StackOne tools] STACKONE_API_KEY is not configured')
     throw new Error('STACKONE_API_KEY is not configured')
   }
 
-  const toolset = new StackOneToolSet({
-    baseUrl: process.env.STACKONE_BASE_URL ?? 'https://api.stackone.com',
-  })
+  const baseUrl = process.env.STACKONE_BASE_URL ?? 'https://api.stackone.com'
+  console.log('[StackOne tools] fetchTools starting', { accountCount: accountIds.length, baseUrl })
+  const toolset = new StackOneToolSet({ baseUrl })
   const tools = await toolset.fetchTools({ accountIds })
 
   const accountIdsForLog = accountIds.map((id) => id.slice(0, 12) + '...')
-  logger.log('[StackOne tools] fetchTools:', { accountCount: accountIds.length, accountIdsForLog, toolCount: tools.toArray().length })
+  const toolCount = tools.toArray().length
+  console.log('[StackOne tools] fetchTools result:', { accountIdsForLog, toolCount })
 
   return tools
 }
@@ -261,12 +263,16 @@ async function getToolsForAccounts(accountIds: string[]) {
 export async function getStackOneUtilityToolsForAISDK(accountIds: string[]) {
   if (accountIds.length === 0) return {}
   try {
+    console.log('[StackOne tools] getStackOneUtilityToolsForAISDK: fetching tools...')
     const tools = await getToolsForAccounts(accountIds)
+    console.log('[StackOne tools] getStackOneUtilityToolsForAISDK: calling utilityTools()...')
     const utilityTools = await tools.utilityTools()
+    console.log('[StackOne tools] getStackOneUtilityToolsForAISDK: getting tool_search and tool_execute...')
     const searchTool = utilityTools.getTool('tool_search')
     const executeTool = utilityTools.getTool('tool_execute')
+    console.log('[StackOne tools] getStackOneUtilityToolsForAISDK:', { hasSearchTool: !!searchTool, hasExecuteTool: !!executeTool })
     if (!searchTool || !executeTool) {
-      logger.warn('[StackOne tools] tool_search or tool_execute not available')
+      console.error('[StackOne tools] tool_search or tool_execute not available from utilityTools()')
       return {}
     }
 
@@ -306,7 +312,7 @@ export async function getStackOneUtilityToolsForAISDK(accountIds: string[]) {
           }
           return requiredNext as JsonObject
         } catch (error) {
-          logger.log('[StackOne tools] tool_search (AI SDK) error:', error instanceof Error ? error.message : error)
+          console.error('[StackOne tools] tool_search (AI SDK) error:', error instanceof Error ? error.message : error)
           return { error: error instanceof Error ? error.message : String(error) }
         }
       },
@@ -343,9 +349,9 @@ export async function getStackOneUtilityToolsForAISDK(accountIds: string[]) {
           }
           return result
         } catch (error) {
-          logger.log('[StackOne tools] tool_execute (AI SDK) error:', { toolName, error: error instanceof Error ? error.message : String(error) })
+          console.error('[StackOne tools] tool_execute (AI SDK) error:', { toolName, error: error instanceof Error ? error.message : String(error) })
           if (debugPayloads) {
-            logger.log('[StackOne tools] tool_execute (AI SDK) error detail:', error)
+            console.error('[StackOne tools] tool_execute (AI SDK) error detail:', error)
           }
           return { error: error instanceof Error ? error.message : String(error) }
         }
@@ -357,7 +363,7 @@ export async function getStackOneUtilityToolsForAISDK(accountIds: string[]) {
       tool_execute: toolExecuteAISDK,
     }
   } catch (error) {
-    logger.error('[StackOne tools] Failed to get utility tools for AI SDK:', error)
+    console.error('[StackOne tools] Failed to get utility tools for AI SDK:', error instanceof Error ? { message: error.message, stack: error.stack } : error)
     return {}
   }
 }
