@@ -262,9 +262,32 @@ async function getToolsForAccounts(accountIds: string[]) {
  */
 export async function getStackOneUtilityToolsForAISDK(accountIds: string[]) {
   if (accountIds.length === 0) return {}
+
+  // Filter out legacy accounts that don't support MCP by trying each individually
+  const validAccountIds: string[] = []
+  for (const accountId of accountIds) {
+    try {
+      await getToolsForAccounts([accountId])
+      validAccountIds.push(accountId)
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : String(error)
+      if (msg.includes('Legacy accounts') || msg.includes('cannot be used with MCP')) {
+        console.warn(`[StackOne tools] Skipping legacy account ${accountId.slice(0, 12)}...: ${msg}`)
+      } else {
+        console.error(`[StackOne tools] Account ${accountId.slice(0, 12)}... failed: ${msg}`)
+      }
+    }
+  }
+
+  if (validAccountIds.length === 0) {
+    console.error('[StackOne tools] No valid (non-legacy) accounts available for utility tools')
+    return {}
+  }
+  console.log('[StackOne tools] Valid accounts for utility tools:', validAccountIds.length, 'of', accountIds.length)
+
   try {
     console.log('[StackOne tools] getStackOneUtilityToolsForAISDK: fetching tools...')
-    const tools = await getToolsForAccounts(accountIds)
+    const tools = await getToolsForAccounts(validAccountIds)
     console.log('[StackOne tools] getStackOneUtilityToolsForAISDK: calling utilityTools()...')
     const utilityTools = await tools.utilityTools()
     console.log('[StackOne tools] getStackOneUtilityToolsForAISDK: getting tool_search and tool_execute...')
