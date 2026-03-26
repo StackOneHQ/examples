@@ -263,47 +263,49 @@ async function getToolsForAccounts(accountIds: string[]) {
 export async function getStackOneUtilityToolsForAISDK(accountIds: string[]) {
   if (accountIds.length === 0) return {}
   try {
-    console.log('[StackOne tools] getStackOneUtilityToolsForAISDK: fetching tools...')
-    const tools = await getToolsForAccounts(accountIds)
-    console.log('[StackOne tools] getStackOneUtilityToolsForAISDK: calling utilityTools()...')
-    const utilityTools = await tools.utilityTools()
-    const searchTool = utilityTools.getTool('tool_search')
-    const executeTool = utilityTools.getTool('tool_execute')
-    console.log('[StackOne tools] getStackOneUtilityToolsForAISDK:', { hasSearchTool: !!searchTool, hasExecuteTool: !!executeTool })
-    if (!searchTool || !executeTool) {
-      console.error('[StackOne tools] tool_search or tool_execute not available from utilityTools()')
+    if (!process.env.STACKONE_API_KEY) {
+      console.error('[StackOne tools] STACKONE_API_KEY is not configured')
       return {}
     }
 
+    const baseUrl = process.env.STACKONE_BASE_URL ?? 'https://api.stackone.com'
+    const toolset = new StackOneToolSet({
+      baseUrl,
+      search: { method: 'local' },
+    })
+    toolset.setAccounts(accountIds)
+    const searchTool = toolset.getSearchTool({ search: 'local' })
+
+    console.log('[StackOne tools] getStackOneUtilityToolsForAISDK: toolset created with 2.5.0 API, local search mode')
+
     const toolSearchAISDK = tool({
-      description: `Use when the user wants to perform an action on their connected apps or documents (e.g. update a doc, list files, send something) and you need to find which provider tool can do it. Do not use for questions that only need reading document content—use getInformationFromRAG for that. — ${searchTool.description}`,
+      description: 'Use when the user wants to perform an action on their connected apps or documents (e.g. update a doc, list files, send something) and you need to find which provider tool can do it. Do not use for questions that only need reading document content—use getInformationFromRAG for that.',
       inputSchema: z.object({
         query: z.string().describe('Natural language query describing what tools you need'),
-        limit: z.number().optional().default(5).describe('Maximum number of tools to return'),
-        minScore: z.number().optional().default(0.3).describe('Minimum relevance score (0-1) for results'),
       }),
       execute: async (args) => {
         const queryPreview = typeof args?.query === 'string' ? args.query.slice(0, 100) + (args.query.length > 100 ? '...' : '') : ''
-        console.log('[StackOne tools] stackone_search called:', { query: queryPreview, limit: args?.limit, minScore: args?.minScore })
+        console.log('[StackOne tools] stackone_search called (local):', { query: queryPreview })
         try {
-          const result = await searchTool.execute(args as JsonObject)
-          const toolsList = result && typeof result === 'object' && 'tools' in result && Array.isArray((result as { tools?: unknown }).tools)
-            ? (result as { tools: Array<{ name: string; description?: string; parameters?: unknown }> }).tools
-            : []
+          const foundTools = await searchTool.search(args.query, { accountIds, topK: 10 })
+          const toolsList = foundTools.toArray().map((t: { name: string; description?: string; parameters?: unknown }) => ({
+            name: t.name,
+            description: (t as { description?: string }).description,
+            parameters: (t as { parameters?: unknown }).parameters,
+          }))
           console.log('[StackOne tools] stackone_search result:', { toolCount: toolsList.length, tools: toolsList.map((t: { name: string }) => t.name) })
+
           const firstTool = toolsList[0]
-          const requiredNext =
-            toolsList.length > 0
-              ? {
-                  ...(result as object),
-                  instruction: `You MUST call stackone_execute next. Use the EXACT tool name from the list above (e.g. "${firstTool.name}"), not a shortened version. Do not respond to the user with text until you have called stackone_execute.`,
-                  exampleCall: {
-                    toolName: firstTool.name,
-                    params: 'Use the "parameters" schema from the tool above. For document id use remote_document_id from Available Documents or RAG sources.',
-                  },
-                }
-              : result
-          return requiredNext as JsonObject
+          return {
+            tools: toolsList,
+            instruction: toolsList.length > 0
+              ? `You MUST call stackone_execute next. Use the EXACT tool name from the list above (e.g. "${firstTool?.name}"), not a shortened version. Do not respond to the user with text until you have called stackone_execute.`
+              : 'No matching tools found.',
+            exampleCall: firstTool ? {
+              toolName: firstTool.name,
+              params: 'Use the parameters schema from the tool above. For document id use remote_document_id from Available Documents or RAG sources.',
+            } : undefined,
+          }
         } catch (error) {
           console.error('[StackOne tools] stackone_search error:', error instanceof Error ? error.message : error)
           return { error: error instanceof Error ? error.message : String(error) }
@@ -312,7 +314,7 @@ export async function getStackOneUtilityToolsForAISDK(accountIds: string[]) {
     })
 
     const toolExecuteAISDK = tool({
-      description: `Execute a provider tool found via stackone_search. You MUST use the EXACT full tool name from stackone_search results (e.g. "googledocs_update_document", not "updateDocument"). Use remote_document_id or ids from RAG/Available Documents where the tool expects a document id. — ${executeTool.description}`,
+      description: 'Execute a provider tool found via stackone_search. You MUST use the EXACT full tool name from stackone_search results (e.g. "googledocs_update_document", not "updateDocument"). Use remote_document_id or ids from RAG/Available Documents where the tool expects a document id.',
       inputSchema: z.object({
         toolName: z.string().describe('The EXACT full tool name from stackone_search results (e.g. "googledocs_update_document")'),
         params: z.record(z.string(), z.unknown()).optional().describe('Parameters to pass to the tool'),
@@ -324,10 +326,16 @@ export async function getStackOneUtilityToolsForAISDK(accountIds: string[]) {
         const params = (paramsObj?.params && typeof paramsObj.params === 'object' ? paramsObj.params : null)
           ?? (paramsObj?.parameters && typeof paramsObj.parameters === 'object' ? paramsObj.parameters : null)
           ?? {}
-        const payload = { toolName, params: params as JsonObject } as JsonObject
         console.log('[StackOne tools] stackone_execute called:', { toolName, paramKeys: Object.keys(params) })
         try {
-          const result = await executeTool.execute(payload)
+          const tools = await toolset.fetchTools({ actions: [toolName], accountIds })
+          const availableNames = tools.toArray().map((t: { name: string }) => t.name)
+          const targetTool = tools.getTool(toolName)
+          if (!targetTool) {
+            console.error('[StackOne tools] stackone_execute: tool not found:', toolName, 'available:', availableNames)
+            return { error: `Tool "${toolName}" not found. Available tools: ${availableNames.join(', ')}. Use the exact name from stackone_search results.` }
+          }
+          const result = await targetTool.execute(params as JsonObject)
           console.log('[StackOne tools] stackone_execute result:', { toolName, success: true })
           return result
         } catch (error) {
