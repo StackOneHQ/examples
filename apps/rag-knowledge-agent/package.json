@@ -19,7 +19,7 @@
     "@llamaindex/core": "0.6.22",
     "@llamaindex/env": "0.1.30",
     "@llamaindex/openai": "^0.1.61",
-    "@stackone/ai": "2.5.0",
+    "@stackone/ai": "2.3.0",
     "@stackone/file-picker": "^0.7.0",
     "@stackone/react-hub": "^1.1.1",
     "@stackone/stackone-client-ts": "^4.26.0",
