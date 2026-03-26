@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    logger.log('[Webhook] Event received', {
+    console.log('[Webhook] Event received', {
       event,
       account_id: accountId,
       record_id: recordId,
@@ -94,7 +94,7 @@ export async function POST(request: NextRequest) {
             await handleDocumentsFileDeleted({ ...body, record_id: recordId })
             break
           default:
-            logger.log(`Unhandled document webhook event: ${event}`)
+            console.log(`Unhandled document webhook event: ${event}`)
         }
       }
     } else {
@@ -109,7 +109,7 @@ export async function POST(request: NextRequest) {
           await handleAccountDeleted(body)
           break
         default:
-          logger.log(`Unhandled webhook event: ${event}`)
+          console.log(`Unhandled webhook event: ${event}`)
       }
     }
 
@@ -192,7 +192,7 @@ async function handleDocumentsFileUpdated(body: StackOneWebhookPayload & { recor
     return
   }
 
-  logger.log('[Webhook] Processing documents_files.updated', { record_id, account_id })
+  console.log('[Webhook] Processing documents_files.updated', { record_id, account_id })
 
   try {
     const integration = await queryOne<{ id: string; stackone_account_id: string }>(
@@ -255,7 +255,7 @@ async function handleDocumentsFileUpdated(body: StackOneWebhookPayload & { recor
         `UPDATE documents SET name = COALESCE($1, name), mime_type = COALESCE($2, mime_type), size = COALESCE($3, size), url = COALESCE($4, url), status = 'completed', updated_at = NOW() WHERE id = $5`,
         [name, mime_type, size, url, doc.id]
       )
-      logger.log('[Webhook] Document content unchanged (hash match); skipped re-indexing', {
+      console.log('[Webhook] Document content unchanged (hash match); skipped re-indexing', {
         document_id: doc.id,
       })
       return
@@ -268,7 +268,7 @@ async function handleDocumentsFileUpdated(body: StackOneWebhookPayload & { recor
 
     await query(`DELETE FROM document_chunks WHERE document_id = $1`, [doc.id])
 
-    logger.log('[Webhook] Content changed; re-ingesting document', { document_id: doc.id })
+    console.log('[Webhook] Content changed; re-ingesting document', { document_id: doc.id })
 
     const agentDocs = await query<{ agent_id: string }>(
       `SELECT agent_id FROM agent_documents WHERE document_id = $1`,
@@ -279,7 +279,7 @@ async function handleDocumentsFileUpdated(body: StackOneWebhookPayload & { recor
         `UPDATE documents SET status = 'completed', content_hash = $1, updated_at = NOW() WHERE id = $2`,
         [newHash, doc.id]
       )
-      logger.log(`Document ${doc.id} has no agent links; marked completed without chunks`)
+      console.log(`Document ${doc.id} has no agent links; marked completed without chunks`)
       return
     }
 
@@ -312,7 +312,7 @@ async function handleDocumentsFileUpdated(body: StackOneWebhookPayload & { recor
       [newHash, doc.id]
     )
 
-    logger.log('[Webhook] Re-ingest complete', { document_id: doc.id, agent_count: agents.length })
+    console.log('[Webhook] Re-ingest complete', { document_id: doc.id, agent_count: agents.length })
   } catch (error) {
     logger.error('Error handling documents_files.updated:', error)
   }
@@ -354,7 +354,7 @@ async function handleDocumentsFileDeleted(body: StackOneWebhookPayload & { recor
     await query(`DELETE FROM document_chunks WHERE document_id = $1`, [doc.id])
     await query(`DELETE FROM documents WHERE id = $1`, [doc.id])
 
-    logger.log(
+    console.log(
       `Deleted document ${doc.id} (stackone_document_id ${record_id}) from documents_files.deleted webhook`
     )
   } catch (error) {
