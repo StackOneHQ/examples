@@ -299,12 +299,8 @@ export async function getStackOneUtilityToolsForAISDK(accountIds: string[]) {
           return {
             tools: toolsList,
             instruction: toolsList.length > 0
-              ? `You MUST call stackone_execute next. Use the EXACT tool name from the list above (e.g. "${firstTool?.name}"), not a shortened version. Do not respond to the user with text until you have called stackone_execute.`
+              ? `You MUST call stackone_execute next with BOTH toolName AND params. Read the "parameters" schema above carefully and populate ALL required fields. Example for googledocs_update_document: { "toolName": "googledocs_update_document", "params": { "path": { "documentId": "<remote_document_id>" }, "body": { "requests": [{ "replaceAllText": { "containsText": { "text": "<old text>", "matchCase": true }, "replaceText": "<new text>" } }] } } }. Do NOT call stackone_execute without params.`
               : 'No matching tools found.',
-            exampleCall: firstTool ? {
-              toolName: firstTool.name,
-              params: 'Use the parameters schema from the tool above. For document id use remote_document_id from Available Documents or RAG sources.',
-            } : undefined,
           }
         } catch (error) {
           console.error('[StackOne tools] stackone_search error:', error instanceof Error ? error.message : error)
@@ -314,18 +310,14 @@ export async function getStackOneUtilityToolsForAISDK(accountIds: string[]) {
     })
 
     const toolExecuteAISDK = tool({
-      description: 'Execute a provider tool found via stackone_search. You MUST use the EXACT full tool name from stackone_search results (e.g. "googledocs_update_document", not "updateDocument"). Use remote_document_id or ids from RAG/Available Documents where the tool expects a document id.',
+      description: 'Execute a provider tool found via stackone_search. You MUST use the EXACT full tool name and provide ALL required parameters from the schema returned by stackone_search. The params object must match the schema structure exactly (e.g. { "path": { "documentId": "..." }, "body": { "requests": [...] } }).',
       inputSchema: z.object({
         toolName: z.string().describe('The EXACT full tool name from stackone_search results (e.g. "googledocs_update_document")'),
-        params: z.record(z.string(), z.unknown()).optional().describe('Parameters to pass to the tool'),
-        parameters: z.record(z.string(), z.unknown()).optional().describe('Alias for params (same as params)'),
+        params: z.record(z.string(), z.unknown()).describe('REQUIRED: The parameters object matching the tool schema from stackone_search. Must include all required fields (e.g. path.documentId, body.requests for document updates).'),
       }),
       execute: async (args) => {
         const toolName = typeof args?.toolName === 'string' ? args.toolName : '<unknown>'
-        const paramsObj = args as { params?: Record<string, unknown>; parameters?: Record<string, unknown> }
-        const params = (paramsObj?.params && typeof paramsObj.params === 'object' ? paramsObj.params : null)
-          ?? (paramsObj?.parameters && typeof paramsObj.parameters === 'object' ? paramsObj.parameters : null)
-          ?? {}
+        const params = (args?.params && typeof args.params === 'object' ? args.params : {}) as Record<string, unknown>
         console.log('[StackOne tools] stackone_execute called:', { toolName, paramKeys: Object.keys(params) })
         try {
           const tools = await toolset.fetchTools({ actions: [toolName], accountIds })
