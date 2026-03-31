@@ -160,12 +160,17 @@ Respond in natural language. If a tool returns an error, report it clearly.`
   // Add current user message
   messages.push({ role: 'user', content: userMessage })
   
+  const modelProvider = process.env.ANTHROPIC_API_KEY ? 'anthropic' : 'openai'
+  const modelId = modelProvider === 'anthropic'
+    ? (process.env.ANTHROPIC_CHAT_MODEL || 'claude-sonnet-4-20250514')
+    : (process.env.OPENAI_CHAT_MODEL || 'gpt-4.1-mini')
+  const model = modelProvider === 'anthropic' ? anthropic(modelId) : openai(modelId)
+  console.log('[Agent] Using model:', { provider: modelProvider, model: modelId, toolCount: Object.keys(allTools).length })
+
   yield { type: 'status', status: 'Analyzing your question and planning the best approach...' }
 
   const agent = new ToolLoopAgent({
-    model: process.env.ANTHROPIC_API_KEY
-      ? anthropic(process.env.ANTHROPIC_CHAT_MODEL || 'claude-sonnet-4-20250514')
-      : openai(process.env.OPENAI_CHAT_MODEL || 'gpt-4.1-mini'),
+    model,
     instructions: enhancedSystemPrompt,
     tools: allTools,
     stopWhen: stepCountIs(maxTurns),
