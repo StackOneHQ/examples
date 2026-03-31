@@ -1,6 +1,7 @@
 // Ensure 'ai' is loaded so @stackone/ai's toAISDK() dynamic import('ai') resolves (e.g. in monorepos)
 import 'ai'
 import { ToolLoopAgent, tool, stepCountIs } from 'ai'
+import { anthropic } from '@ai-sdk/anthropic'
 import { openai } from '@ai-sdk/openai'
 import { z } from 'zod'
 import { RAGService, type DocumentChunk } from '@/lib/llamaindex/rag-service'
@@ -162,7 +163,9 @@ Respond in natural language. If a tool returns an error, report it clearly.`
   yield { type: 'status', status: 'Analyzing your question and planning the best approach...' }
 
   const agent = new ToolLoopAgent({
-    model: openai(process.env.OPENAI_CHAT_MODEL || 'gpt-4.1-mini'),
+    model: process.env.ANTHROPIC_API_KEY
+      ? anthropic(process.env.ANTHROPIC_CHAT_MODEL || 'claude-sonnet-4-20250514')
+      : openai(process.env.OPENAI_CHAT_MODEL || 'gpt-4.1-mini'),
     instructions: enhancedSystemPrompt,
     tools: allTools,
     stopWhen: stepCountIs(maxTurns),
