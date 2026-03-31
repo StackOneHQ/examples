@@ -5,7 +5,7 @@ import { anthropic } from '@ai-sdk/anthropic'
 import { openai } from '@ai-sdk/openai'
 import { z } from 'zod'
 import { RAGService, type DocumentChunk } from '@/lib/llamaindex/rag-service'
-import { getStackOneUtilityToolsForAISDK, type DocumentContextItem } from '@/lib/stackone/meta-tools'
+import { getStackOneUtilityToolsForAISDK, getDirectToolsForAISDK, type DocumentContextItem } from '@/lib/stackone/meta-tools'
 import { logger } from '@/utils/logger'
 
 const DEBUG_TOOLS =
@@ -47,30 +47,36 @@ export async function* runVercelAgent(
     userId: string
     messageHistory: Array<{ role: 'user' | 'assistant'; content: string }>
     maxTurns?: number
+    modelId?: string
+    toolMode?: 'search' | 'direct'
   }
 ): AsyncGenerator<VercelAgentResult, void, unknown> {
-  const { documentIds, accountIds, documentContext, userId, messageHistory, maxTurns = 10 } = options
+  const { documentIds, accountIds, documentContext, userId, messageHistory, maxTurns = 10, modelId, toolMode = 'search' } = options
   const ragService = new RAGService()
 
-  // StackOne utility tools (stackone_search + stackone_execute): model discovers tools via search, then executes by name
-  console.log('[Agent] Loading utility tools', { accountIds: accountIds.length, hasApiKey: !!process.env.STACKONE_API_KEY })
+  // Load StackOne action tools based on mode
+  console.log('[Agent] Loading action tools', { accountIds: accountIds.length, toolMode, hasApiKey: !!process.env.STACKONE_API_KEY })
   if (accountIds.length === 0) {
-    console.warn(
-      '[Agent] No StackOne account IDs for this agent — stackone_search/stackone_execute are disabled. Link integrations to the agent (with a connected StackOne account) and ensure STACKONE_API_KEY is set.'
-    )
+    console.warn('[Agent] No StackOne account IDs — action tools disabled.')
   }
 
-  const aiSdkUtilityTools = accountIds.length > 0 ? await getStackOneUtilityToolsForAISDK(accountIds) : {}
+  let aiSdkUtilityTools: Record<string, unknown> = {}
+  if (accountIds.length > 0) {
+    if (toolMode === 'direct') {
+      aiSdkUtilityTools = await getDirectToolsForAISDK(accountIds)
+    } else {
+      aiSdkUtilityTools = await getStackOneUtilityToolsForAISDK(accountIds)
+    }
+  }
 
   const hasActionTools = Object.keys(aiSdkUtilityTools).length > 0
-  console.log('[Agent] Utility tools result', { hasActionTools, toolNames: Object.keys(aiSdkUtilityTools) })
+  const actionToolNames = Object.keys(aiSdkUtilityTools)
+  console.log('[Agent] Action tools result', { hasActionTools, toolMode, toolNames: actionToolNames.slice(0, 15) })
   if (accountIds.length > 0 && !hasActionTools) {
-    console.error(
-      '[Agent] StackOne utility tools failed to load (empty stackone_search/stackone_execute). Check STACKONE_API_KEY, STACKONE_BASE_URL, and server logs from getStackOneUtilityToolsForAISDK.'
-    )
+    console.error('[Agent] Action tools failed to load. Check STACKONE_API_KEY, STACKONE_BASE_URL, and server logs.')
   }
 
-  const systemPromptWithActions = `You are a helpful AI assistant with access to the following tools. Use each when appropriate:
+  const systemPromptSearchMode = `You are a helpful AI assistant with access to the following tools. Use each when appropriate:
 
 **getInformationFromRAG** – Use when the user asks a question about their documents, when you need to read or search document content, or when you need a document identifier (remote_document_id) or current content to perform an action. Do not use when the request does not involve the user's documents or when you already have the needed content or ids from context.
 
@@ -82,6 +88,14 @@ export async function* runVercelAgent(
 
 Respond in natural language. After using tools, summarize outcomes for the user. If a tool returns an error, report it clearly and suggest what the user can check or try.`
 
+  const systemPromptDirectMode = `You are a helpful AI assistant with access to document search and provider action tools.
+
+**getInformationFromRAG** – Use when the user asks a question about their documents, when you need to read or search document content, or when you need a document identifier (remote_document_id) or current content to perform an action.
+
+**Action tools** – You have direct access to provider action tools (${actionToolNames.join(', ')}). Call them directly with the required parameters. Use document ids (e.g. remote_document_id from RAG results or Available Documents) where the tool expects a document ID. Use content from RAG results to populate parameters (e.g. text to find/replace). Do not ask the user for information you can infer from prior tool results.
+
+Respond in natural language. After using tools, summarize outcomes for the user. If a tool returns an error, report it clearly and suggest what the user can check or try.`
+
   const systemPromptRagOnly = `You are a helpful AI assistant with access to **getInformationFromRAG** only (search/read indexed documents). You do **not** have tools to update Google Docs, Drive, or other live apps in this session.
 
 **getInformationFromRAG** – Use when the user asks about their documents, needs content or quotes, or needs a remote_document_id from indexed material.
@@ -90,7 +104,11 @@ If the user asks to update, edit, or change a live document in a connected app, 
 
 Respond in natural language. If a tool returns an error, report it clearly.`
 
-  const systemPrompt = hasActionTools ? systemPromptWithActions : systemPromptRagOnly
+  const systemPrompt = !hasActionTools
+    ? systemPromptRagOnly
+    : toolMode === 'direct'
+      ? systemPromptDirectMode
+      : systemPromptSearchMode
 
   // Add document context to system prompt if available
   let enhancedSystemPrompt = systemPrompt
@@ -160,12 +178,22 @@ Respond in natural language. If a tool returns an error, report it clearly.`
   // Add current user message
   messages.push({ role: 'user', content: userMessage })
   
-  const modelProvider = process.env.ANTHROPIC_API_KEY ? 'anthropic' : 'openai'
-  const modelId = modelProvider === 'anthropic'
-    ? (process.env.ANTHROPIC_CHAT_MODEL || 'claude-sonnet-4-20250514')
-    : (process.env.OPENAI_CHAT_MODEL || 'gpt-4.1-mini')
-  const model = modelProvider === 'anthropic' ? anthropic(modelId) : openai(modelId)
-  console.log('[Agent] Using model:', { provider: modelProvider, model: modelId, toolCount: Object.keys(allTools).length })
+  // Parse modelId format: "anthropic/claude-sonnet-4-20250514" or "openai/gpt-4.1-mini"
+  let resolvedProvider: string
+  let resolvedModelId: string
+  if (modelId && modelId.includes('/')) {
+    const [p, ...rest] = modelId.split('/')
+    resolvedProvider = p
+    resolvedModelId = rest.join('/')
+  } else {
+    // Fallback: auto-detect from env
+    resolvedProvider = process.env.ANTHROPIC_API_KEY ? 'anthropic' : 'openai'
+    resolvedModelId = resolvedProvider === 'anthropic'
+      ? (process.env.ANTHROPIC_CHAT_MODEL || 'claude-sonnet-4-20250514')
+      : (process.env.OPENAI_CHAT_MODEL || 'gpt-4.1-mini')
+  }
+  const model = resolvedProvider === 'anthropic' ? anthropic(resolvedModelId) : openai(resolvedModelId)
+  console.log('[Agent] Using model:', { provider: resolvedProvider, model: resolvedModelId, toolMode, toolCount: Object.keys(allTools).length })
 
   yield { type: 'status', status: 'Analyzing your question and planning the best approach...' }
 
@@ -174,19 +202,17 @@ Respond in natural language. If a tool returns an error, report it clearly.`
     instructions: enhancedSystemPrompt,
     tools: allTools,
     stopWhen: stepCountIs(maxTurns),
-    prepareStep: ({ steps, stepNumber }) => {
-      const lastStep = steps.length > 0 ? steps[steps.length - 1] : null
-      const lastStepHadToolSearch =
-        lastStep?.toolCalls?.some((tc: { toolName: string }) => tc.toolName === 'stackone_search')
-      const toolNames = lastStep?.toolCalls?.map((tc: { toolName: string }) => tc.toolName) ?? []
-      logger.log('[Agent prepareStep]', { stepNumber, stepsLength: steps.length, toolNames, lastStepHadToolSearch })
-      if (stepNumber >= 1 && lastStepHadToolSearch) {
-        // Force stackone_execute so the model must call it (not skip to text)
-        logger.log('[Agent prepareStep] Forcing stackone_execute for next step')
-        return { toolChoice: { type: 'tool' as const, toolName: 'stackone_execute' } }
-      }
-      return {}
-    },
+    ...(toolMode === 'search' ? {
+      prepareStep: ({ steps, stepNumber }: { steps: Array<{ toolCalls?: Array<{ toolName: string }> }>; stepNumber: number }) => {
+        const lastStep = steps.length > 0 ? steps[steps.length - 1] : null
+        const lastStepHadToolSearch =
+          lastStep?.toolCalls?.some((tc: { toolName: string }) => tc.toolName === 'stackone_search')
+        if (stepNumber >= 1 && lastStepHadToolSearch) {
+          return { toolChoice: { type: 'tool' as const, toolName: 'stackone_execute' } }
+        }
+        return {}
+      },
+    } : {}),
   })
 
   const result = await agent.stream({ messages })

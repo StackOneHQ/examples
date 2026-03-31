@@ -285,6 +285,8 @@ export function StreamingChatInterface({ agentId }: StreamingChatInterfaceProps)
   const [editingMessageType, setEditingMessageType] = useState<'document' | 'code' | null>(null)
   const [editingMessageText, setEditingMessageText] = useState('')
   const [inputValue, setInputValue] = useState('')
+  const [selectedModel, setSelectedModel] = useState<string>('anthropic/claude-sonnet-4-20250514')
+  const [toolMode, setToolMode] = useState<'search' | 'direct'>('search')
   const abortControllerRef = useRef<AbortController | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
@@ -360,7 +362,9 @@ export function StreamingChatInterface({ agentId }: StreamingChatInterfaceProps)
         body: JSON.stringify({
           message: content,
           agentId: agentId,
-          threadId: threadId || null
+          threadId: threadId || null,
+          modelId: selectedModel,
+          toolMode,
         }),
         signal: abortControllerRef.current.signal
       })
@@ -600,7 +604,7 @@ export function StreamingChatInterface({ agentId }: StreamingChatInterfaceProps)
       setStatusMessage('')
       abortControllerRef.current = null
     }
-  }, [agentId, isStreaming, currentThreadId, threads])
+  }, [agentId, isStreaming, currentThreadId, threads, selectedModel, toolMode])
 
   // Create custom chat handler
   const chatHandler = useRef(new CustomChatHandler(
@@ -1361,14 +1365,38 @@ export function StreamingChatInterface({ agentId }: StreamingChatInterfaceProps)
             </div>
           </div>
           <TypographySpace>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#707070' }}>
+              <span>Tools:</span>
+              <div
+                onClick={() => setToolMode(toolMode === 'search' ? 'direct' : 'search')}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  padding: '2px 8px',
+                  borderRadius: '4px',
+                  border: '1px solid #d9d9d9',
+                  cursor: 'pointer',
+                  fontSize: '11px',
+                  fontWeight: 500,
+                  backgroundColor: toolMode === 'direct' ? '#f0f9ff' : '#fff',
+                  color: toolMode === 'direct' ? '#1d4ed8' : '#707070',
+                  userSelect: 'none',
+                  transition: 'all 0.15s ease',
+                }}
+                title={toolMode === 'search' ? 'Search/Execute: Agent discovers tools via search, then executes' : 'Direct: All tools available directly to the agent'}
+              >
+                {toolMode === 'search' ? '🔍 Search' : '⚡ Direct'}
+              </div>
+            </div>
             {isMobile && (
-              <TypographyButton 
+              <TypographyButton
                 icon={<TypographyMessageOutlined />}
                 onClick={() => setThreadsDrawerVisible(true)}
               />
             )}
             {currentThreadId && (
-              <TypographyButton 
+              <TypographyButton
                 icon={<TypographyClearOutlined />}
                 onClick={clearCurrentThread}
                 title="Clear messages"
@@ -1782,12 +1810,72 @@ export function StreamingChatInterface({ agentId }: StreamingChatInterfaceProps)
             }}>
               <div className="stackone-card" style={{
                 display: 'flex',
-                alignItems: 'flex-end',
-                gap: '12px',
-                padding: '12px 12px 12px 24px',
+                flexDirection: 'column',
+                gap: '0',
+                padding: '0',
                 transition: 'all 0.2s ease',
                 position: 'relative'
               }}>
+                {/* Model selector row */}
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '8px 12px 4px 24px',
+                  fontSize: '11px',
+                  color: '#999',
+                }}>
+                  <select
+                    value={selectedModel}
+                    onChange={(e) => setSelectedModel(e.target.value)}
+                    disabled={isStreaming}
+                    style={{
+                      appearance: 'none',
+                      WebkitAppearance: 'none',
+                      background: 'transparent',
+                      border: 'none',
+                      fontSize: '11px',
+                      color: '#707070',
+                      fontWeight: 500,
+                      cursor: 'pointer',
+                      padding: '2px 16px 2px 20px',
+                      borderRadius: '4px',
+                      backgroundImage: `url("data:image/svg+xml,%3Csvg width='8' height='5' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%23999'/%3E%3C/svg%3E")`,
+                      backgroundRepeat: 'no-repeat',
+                      backgroundPosition: 'right 4px center',
+                      backgroundSize: '8px 5px',
+                    }}
+                  >
+                    <optgroup label="Anthropic">
+                      <option value="anthropic/claude-sonnet-4-20250514">Claude Sonnet 4</option>
+                      <option value="anthropic/claude-haiku-4-5-20251001">Claude Haiku 4.5</option>
+                    </optgroup>
+                    <optgroup label="OpenAI">
+                      <option value="openai/gpt-4.1-mini">GPT-4.1 Mini</option>
+                      <option value="openai/gpt-4.1">GPT-4.1</option>
+                      <option value="openai/gpt-4.1-nano">GPT-4.1 Nano</option>
+                    </optgroup>
+                  </select>
+                  {/* Provider logo */}
+                  <span style={{ fontSize: '13px', lineHeight: 1 }}>
+                    {selectedModel.startsWith('anthropic/') ? (
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ verticalAlign: 'middle' }}>
+                        <path d="M17.304 3.541h-3.483l6.15 16.918h3.483l-6.15-16.918zM6.696 3.541L.546 20.459H4.03l1.263-3.474h6.47l1.263 3.474h3.483L10.36 3.541H6.696zm.838 10.6 2.198-6.046 2.198 6.046H7.534z" fill="#191919"/>
+                      </svg>
+                    ) : (
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ verticalAlign: 'middle' }}>
+                        <path d="M22.282 9.821a5.985 5.985 0 0 0-.516-4.91 6.046 6.046 0 0 0-6.51-2.9A6.065 6.065 0 0 0 4.981 4.18a5.998 5.998 0 0 0-3.998 2.9 6.046 6.046 0 0 0 .743 7.097 5.98 5.98 0 0 0 .51 4.911 6.051 6.051 0 0 0 6.515 2.9A5.985 5.985 0 0 0 13.26 24a6.056 6.056 0 0 0 5.772-4.206 5.99 5.99 0 0 0 3.997-2.9 6.056 6.056 0 0 0-.747-7.073z" fill="#191919"/>
+                      </svg>
+                    )}
+                  </span>
+                </div>
+                {/* Input row */}
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'flex-end',
+                  gap: '12px',
+                  padding: '0 12px 12px 24px',
+                }}>
                 <TypographyTextArea
                   placeholder="Type your message..."
                   autoSize={{ minRows: 2, maxRows: 6 }}
@@ -1864,13 +1952,14 @@ export function StreamingChatInterface({ agentId }: StreamingChatInterfaceProps)
                     e.currentTarget.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.05)'
                   }}
                 />
-              </div>
+                </div>{/* end input row */}
+              </div>{/* end stackone-card */}
               <div style={{
                 textAlign: 'center',
                 marginTop: '12px'
               }}>
-                <TypographyText style={{ 
-                  color: 'var(--stackone-gray-500)', 
+                <TypographyText style={{
+                  color: 'var(--stackone-gray-500)',
                   fontSize: '12px',
                   fontFamily: 'var(--font-sans)'
                 }}>

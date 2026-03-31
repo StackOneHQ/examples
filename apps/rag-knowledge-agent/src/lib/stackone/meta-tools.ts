@@ -348,6 +348,28 @@ export async function getStackOneUtilityToolsForAISDK(accountIds: string[]) {
 }
 
 /**
+ * Get all StackOne tools in AI SDK format for direct tool calling (no search/execute).
+ * Uses @stackone/ai's toAISDK() to convert all provider actions to executable AI SDK tools.
+ * Best for small tool sets (<15 tools) where search overhead isn't needed.
+ */
+export async function getDirectToolsForAISDK(accountIds: string[]): Promise<Record<string, unknown>> {
+  if (accountIds.length === 0) return {}
+  try {
+    console.log('[StackOne tools] getDirectToolsForAISDK: fetching tools...')
+    const tools = await getToolsForAccounts(accountIds)
+    const actionableTools = tools.filter((t: { name: string }) => isActionableTool(t.name))
+    const toolNames = actionableTools.toArray().map((t: { name: string }) => t.name)
+    console.log('[StackOne tools] getDirectToolsForAISDK: converting to AI SDK format', { toolCount: toolNames.length, tools: toolNames })
+    const aiSdkTools = await actionableTools.toAISDK({ executable: true })
+    console.log('[StackOne tools] getDirectToolsForAISDK: ready', { toolCount: Object.keys(aiSdkTools).length })
+    return aiSdkTools as Record<string, unknown>
+  } catch (error) {
+    console.error('[StackOne tools] getDirectToolsForAISDK error:', error instanceof Error ? { message: error.message, stack: error.stack } : error)
+    return {}
+  }
+}
+
+/**
  * Get actionable StackOne tool instances (from fetchTools) for direct use with the AI SDK.
  * Use when attaching all provider tools directly; for discover-then-execute use getStackOneUtilityToolsForAISDK instead.
  */

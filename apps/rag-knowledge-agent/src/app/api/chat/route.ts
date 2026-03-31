@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
   try {
     const user = await requireUser()
     const requestData = await request.json()
-    const { message, agentId, isEdit } = requestData
+    const { message, agentId, isEdit, modelId, toolMode } = requestData
     let { threadId } = requestData
 
     logger.log('Chat API - Request data:', { message, agentId, threadId, userId: user.id })
@@ -197,6 +197,8 @@ export async function POST(request: NextRequest) {
             userId: user.id,
             messageHistory,
             maxTurns,
+            modelId: modelId as string | undefined,
+            toolMode: (toolMode as 'search' | 'direct') || 'search',
           })) {
             if (result.type === 'content' && result.content) {
               fullResponse += result.content
