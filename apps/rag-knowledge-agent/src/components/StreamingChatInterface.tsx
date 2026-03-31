@@ -1820,30 +1820,34 @@ export function StreamingChatInterface({ agentId }: StreamingChatInterfaceProps)
                 <div style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '6px',
-                  padding: '8px 12px 4px 24px',
-                  fontSize: '11px',
-                  color: '#999',
+                  gap: '8px',
+                  padding: '10px 12px 0 24px',
                 }}>
+                  {/* Provider logo */}
+                  <span style={{ lineHeight: 1, flexShrink: 0 }}>
+                    {selectedModel.startsWith('anthropic/') ? (
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style={{ verticalAlign: 'middle' }}>
+                        <path d="M17.304 3.541h-3.483l6.15 16.918h3.483l-6.15-16.918zM6.696 3.541L.546 20.459H4.03l1.263-3.474h6.47l1.263 3.474h3.483L10.36 3.541H6.696zm.838 10.6 2.198-6.046 2.198 6.046H7.534z" fill="#191919"/>
+                      </svg>
+                    ) : (
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style={{ verticalAlign: 'middle' }}>
+                        <path d="M22.282 9.821a5.985 5.985 0 0 0-.516-4.91 6.046 6.046 0 0 0-6.51-2.9A6.065 6.065 0 0 0 4.981 4.18a5.998 5.998 0 0 0-3.998 2.9 6.046 6.046 0 0 0 .743 7.097 5.98 5.98 0 0 0 .51 4.911 6.051 6.051 0 0 0 6.515 2.9A5.985 5.985 0 0 0 13.26 24a6.056 6.056 0 0 0 5.772-4.206 5.99 5.99 0 0 0 3.997-2.9 6.056 6.056 0 0 0-.747-7.073z" fill="#191919"/>
+                      </svg>
+                    )}
+                  </span>
                   <select
                     value={selectedModel}
                     onChange={(e) => setSelectedModel(e.target.value)}
                     disabled={isStreaming}
                     style={{
-                      appearance: 'none',
-                      WebkitAppearance: 'none',
                       background: 'transparent',
-                      border: 'none',
-                      fontSize: '11px',
-                      color: '#707070',
+                      border: '1px solid #e5e5e5',
+                      fontSize: '12px',
+                      color: '#505050',
                       fontWeight: 500,
                       cursor: 'pointer',
-                      padding: '2px 16px 2px 20px',
-                      borderRadius: '4px',
-                      backgroundImage: `url("data:image/svg+xml,%3Csvg width='8' height='5' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%23999'/%3E%3C/svg%3E")`,
-                      backgroundRepeat: 'no-repeat',
-                      backgroundPosition: 'right 4px center',
-                      backgroundSize: '8px 5px',
+                      padding: '3px 8px',
+                      borderRadius: '6px',
                     }}
                   >
                     <optgroup label="Anthropic">
@@ -1856,18 +1860,6 @@ export function StreamingChatInterface({ agentId }: StreamingChatInterfaceProps)
                       <option value="openai/gpt-4.1-nano">GPT-4.1 Nano</option>
                     </optgroup>
                   </select>
-                  {/* Provider logo */}
-                  <span style={{ fontSize: '13px', lineHeight: 1 }}>
-                    {selectedModel.startsWith('anthropic/') ? (
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ verticalAlign: 'middle' }}>
-                        <path d="M17.304 3.541h-3.483l6.15 16.918h3.483l-6.15-16.918zM6.696 3.541L.546 20.459H4.03l1.263-3.474h6.47l1.263 3.474h3.483L10.36 3.541H6.696zm.838 10.6 2.198-6.046 2.198 6.046H7.534z" fill="#191919"/>
-                      </svg>
-                    ) : (
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ verticalAlign: 'middle' }}>
-                        <path d="M22.282 9.821a5.985 5.985 0 0 0-.516-4.91 6.046 6.046 0 0 0-6.51-2.9A6.065 6.065 0 0 0 4.981 4.18a5.998 5.998 0 0 0-3.998 2.9 6.046 6.046 0 0 0 .743 7.097 5.98 5.98 0 0 0 .51 4.911 6.051 6.051 0 0 0 6.515 2.9A5.985 5.985 0 0 0 13.26 24a6.056 6.056 0 0 0 5.772-4.206 5.99 5.99 0 0 0 3.997-2.9 6.056 6.056 0 0 0-.747-7.073z" fill="#191919"/>
-                      </svg>
-                    )}
-                  </span>
                 </div>
                 {/* Input row */}
                 <div style={{
