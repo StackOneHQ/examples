@@ -76,6 +76,46 @@ export interface UtilityToolsSearchResult {
   score: number
 }
 
+/**
+ * Trim a JSON schema to reduce token count for the model.
+ * Keeps required fields and top-level structure but truncates deeply nested
+ * optional properties that bloat the schema (e.g. googledocs_update_document
+ * has 30+ nested operation types with full formatting schemas).
+ */
+function trimSchema(schema: unknown, depth = 0, maxDepth = 3): unknown {
+  if (!schema || typeof schema !== 'object') return schema
+  const s = schema as Record<string, unknown>
+
+  // At max depth, return a summary instead of the full schema
+  if (depth >= maxDepth) {
+    const type = s.type as string | undefined
+    const desc = s.description as string | undefined
+    const required = s.required as string[] | undefined
+    const summary: Record<string, unknown> = {}
+    if (type) summary.type = type
+    if (desc) summary.description = desc
+    if (required) summary.required = required
+    return summary
+  }
+
+  const result: Record<string, unknown> = {}
+  for (const [key, value] of Object.entries(s)) {
+    if (key === 'properties' && typeof value === 'object' && value !== null) {
+      const props = value as Record<string, unknown>
+      const trimmed: Record<string, unknown> = {}
+      for (const [propName, propValue] of Object.entries(props)) {
+        trimmed[propName] = trimSchema(propValue, depth + 1, maxDepth)
+      }
+      result[key] = trimmed
+    } else if (key === 'items' && typeof value === 'object') {
+      result[key] = trimSchema(value, depth + 1, maxDepth)
+    } else {
+      result[key] = value
+    }
+  }
+  return result
+}
+
 /** Exclude feedback and other non-action tools from search results so we never execute them for user requests. */
 function isActionableTool(name: string): boolean {
   const n = name.toLowerCase()
@@ -291,7 +331,7 @@ export async function getStackOneUtilityToolsForAISDK(accountIds: string[]) {
           const toolsList = foundTools.toArray().map((t: { name: string; description?: string; parameters?: unknown }) => ({
             name: t.name,
             description: (t as { description?: string }).description,
-            parameters: (t as { parameters?: unknown }).parameters,
+            parameters: trimSchema((t as { parameters?: unknown }).parameters),
           }))
           console.log('[StackOne tools] stackone_search result:', { toolCount: toolsList.length, tools: toolsList.map((t: { name: string }) => t.name) })
 
@@ -299,12 +339,8 @@ export async function getStackOneUtilityToolsForAISDK(accountIds: string[]) {
           return {
             tools: toolsList,
             instruction: toolsList.length > 0
-              ? `You MUST call stackone_execute next. Use the EXACT tool name from the list above (e.g. "${firstTool?.name}"), not a shortened version. Do not respond to the user with text until you have called stackone_execute.`
+              ? `You MUST call stackone_execute next with the tool name AND the required params. Use the EXACT tool name (e.g. "${firstTool?.name}"). You MUST populate ALL required fields shown in the parameters schema. Use remote_document_id from Available Documents or RAG sources for document IDs. Do not respond to the user until you have called stackone_execute with full params.`
               : 'No matching tools found.',
-            exampleCall: firstTool ? {
-              toolName: firstTool.name,
-              params: 'Use the parameters schema from the tool above. For document id use remote_document_id from Available Documents or RAG sources.',
-            } : undefined,
           }
         } catch (error) {
           console.error('[StackOne tools] stackone_search error:', error instanceof Error ? error.message : error)
