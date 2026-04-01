@@ -355,13 +355,34 @@ export async function getStackOneUtilityToolsForAISDK(accountIds: string[]) {
 export async function getDirectToolsForAISDK(accountIds: string[]): Promise<Record<string, unknown>> {
   if (accountIds.length === 0) return {}
   try {
-    console.log('[StackOne tools] getDirectToolsForAISDK: fetching tools...')
-    const tools = await getToolsForAccounts(accountIds)
-    const actionableTools = tools.filter((t: { name: string }) => isActionableTool(t.name))
-    const toolNames = actionableTools.toArray().map((t: { name: string }) => t.name)
-    console.log('[StackOne tools] getDirectToolsForAISDK: converting to AI SDK format', { toolCount: toolNames.length, tools: toolNames })
-    const aiSdkTools = await actionableTools.toAISDK({ executable: true })
-    console.log('[StackOne tools] getDirectToolsForAISDK: ready', { toolCount: Object.keys(aiSdkTools).length })
+    if (!process.env.STACKONE_API_KEY) {
+      console.error('[StackOne tools] STACKONE_API_KEY is not configured')
+      return {}
+    }
+    const baseUrl = process.env.STACKONE_BASE_URL ?? 'https://api.stackone.com'
+    console.log('[StackOne tools] getDirectToolsForAISDK: fetching tools...', { accountCount: accountIds.length })
+    const toolset = new StackOneToolSet({ baseUrl })
+    const tools = await toolset.fetchTools({ accountIds })
+    const allTools = tools.toArray()
+    const actionableToolNames = allTools
+      .map((t: { name: string }) => t.name)
+      .filter((name: string) => isActionableTool(name))
+    console.log('[StackOne tools] getDirectToolsForAISDK: found tools', { total: allTools.length, actionable: actionableToolNames.length, tools: actionableToolNames })
+
+    // Filter to actionable tools if supported
+    let toolsToConvert = tools
+    if (typeof tools.filter === 'function') {
+      toolsToConvert = tools.filter((t: { name: string }) => isActionableTool(t.name))
+    }
+
+    // toAISDK() converts all tools to AI SDK format with execute functions (2.4+)
+    if (typeof toolsToConvert.toAISDK !== 'function') {
+      console.error('[StackOne tools] getDirectToolsForAISDK: toAISDK() not available — SDK version may be too old. Requires @stackone/ai >= 2.4.0')
+      return {}
+    }
+    const aiSdkTools = await toolsToConvert.toAISDK({ executable: true })
+    const toolKeys = Object.keys(aiSdkTools)
+    console.log('[StackOne tools] getDirectToolsForAISDK: ready', { toolCount: toolKeys.length, tools: toolKeys })
     return aiSdkTools as Record<string, unknown>
   } catch (error) {
     console.error('[StackOne tools] getDirectToolsForAISDK error:', error instanceof Error ? { message: error.message, stack: error.stack } : error)
