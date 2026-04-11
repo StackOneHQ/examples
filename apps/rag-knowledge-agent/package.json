@@ -31,7 +31,7 @@
     "bootstrap-icons": "^1.13.1",
     "dotenv": "^17.2.2",
     "lucide-react": "^0.542.0",
-    "next": "^16.1.0",
+    "next": "^16.2.3",
     "next-auth": "^4.24.13",
     "pg": "^8.18.0",
     "pgvector": "0.2.0",
