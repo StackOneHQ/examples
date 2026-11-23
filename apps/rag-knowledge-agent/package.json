@@ -10,7 +10,7 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@ai-sdk/openai": "^3.0.25",
+    "@ai-sdk/openai": "^3.0.115",
     "@ant-design/icons": "^5.6.1",
     "@ant-design/v5-patch-for-react-19": "^1.0.3",
     "@langchain/core": "^0.3.72",
@@ -24,7 +24,7 @@
     "@stackone/react-hub": "^1.1.1",
     "@stackone/stackone-client-ts": "^4.26.0",
     "@types/uuid": "^10.0.0",
-    "ai": "^6.0.70",
+    "ai": "^6.0.287",
     "antd": "^5.27.2",
     "bcryptjs": "^3.0.3",
     "bootstrap": "^5.3.8",
@@ -32,7 +32,7 @@
     "dotenv": "^17.2.2",
     "lucide-react": "^0.542.0",
     "next": "^16.1.0",
-    "next-auth": "^4.24.13",
+    "next-auth": "^4.24.15",
     "pg": "^8.18.0",
     "pgvector": "0.2.0",
     "react": "^19.0.0",
