@@ -138,7 +138,6 @@ export async function POST(request: NextRequest) {
             integrationIdsFromAgent: integrationIds.length,
             integrationsFound: integrations.length,
             accountIds: accountIds.length,
-            accountIdPreviews: accountIds.map(id => id.slice(0, 12) + '...'),
             documentIds: documentIds.length,
             documentContext: documentContext.length,
             hasStackOneApiKey: !!process.env.STACKONE_API_KEY,
