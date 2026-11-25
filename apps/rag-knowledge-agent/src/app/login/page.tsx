@@ -36,9 +36,9 @@ import {
   handleFooterLinkMouseEnter,
   handleFooterLinkMouseLeave,
   handleAdditionalLinkMouseEnter,
-  handleAdditionalLinkMouseLeave,
-  sameOriginPath
+  handleAdditionalLinkMouseLeave
 } from './loginUtils'
+import { sameOriginPath } from './sameOriginPath'
 
 const TypographyTitle = Typography.Title as any
 const TypographyText = Typography.Text as any
