@@ -88,15 +88,14 @@ async function handleOAuthCallback(
       request.headers.forEach((value, key) => {
         const lowerKey = key.toLowerCase();
         
-        // Skip hop-by-hop headers that should not be forwarded
-        const hopByHopHeaders = [
+        // Hop-by-hop headers, and this domain's own credentials, which StackOne must not get
+        const skippedHeaders = [
           'host', 'connection', 'keep-alive', 'proxy-authenticate', 'proxy-authorization',
-          // Credentials for this proxy's own domain must not reach StackOne
-          'cookie', 'authorization',
-          'te', 'trailers', 'transfer-encoding', 'upgrade', 'content-length', 'content-encoding'
+          'te', 'trailers', 'transfer-encoding', 'upgrade', 'content-length', 'content-encoding',
+          'cookie', 'authorization'
         ];
         
-        if (!hopByHopHeaders.includes(lowerKey)) {
+        if (!skippedHeaders.includes(lowerKey)) {
           forwardHeaders[key] = value;
         }
       });
