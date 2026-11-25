@@ -3,12 +3,14 @@ import { NextRequest, NextResponse } from 'next/server';
 // Force dynamic rendering for this route
 export const dynamic = 'force-dynamic';
 
+type RouteContext = { params: Promise<{ provider: string }> };
+
 async function handleOAuthCallback(
   request: NextRequest,
-  { params }: { params: { provider: string } }
+  { params }: RouteContext
 ) {
   try {
-    const { provider } = params;
+    const { provider } = await params;
     const method = request.method;
     
     // Security: Encode provider to prevent path injection
@@ -143,14 +145,14 @@ async function handleOAuthCallback(
 
 export async function GET(
   request: NextRequest,
-  context: { params: { provider: string } }
+  context: RouteContext
 ) {
   return handleOAuthCallback(request, context);
 }
 
 export async function POST(
   request: NextRequest,
-  context: { params: { provider: string } }
+  context: RouteContext
 ) {
   return handleOAuthCallback(request, context);
 }
