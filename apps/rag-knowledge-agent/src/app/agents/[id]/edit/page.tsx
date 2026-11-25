@@ -278,7 +278,10 @@ export default function EditAgentPage() {
       }
 
       // Start document processing for any new files
-      if (Object.keys(agentIntegrations).length > 0) {
+      const selectedAgentIntegrations = Object.fromEntries(
+        selectedIntegrations.map(integrationId => [integrationId, agentIntegrations[integrationId] || []])
+      )
+      if (selectedIntegrations.length > 0) {
         try {
           const response = await fetch('/api/agents/process', {
             method: 'POST',
@@ -287,7 +290,7 @@ export default function EditAgentPage() {
             },
             body: JSON.stringify({ 
               agentId: agentId,
-              agentIntegrations: agentIntegrations
+              agentIntegrations: selectedAgentIntegrations
             }),
           })
 

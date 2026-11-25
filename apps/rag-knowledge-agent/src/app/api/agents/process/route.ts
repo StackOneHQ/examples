@@ -32,8 +32,8 @@ export async function POST(request: NextRequest) {
 
     const integrationIds = Object.keys(agentIntegrations) as string[]
     const integrations = await query<{ id: string; stackone_account_id: string }>(
-      `SELECT id, stackone_account_id FROM integrations WHERE id = ANY($1::uuid[])`,
-      [integrationIds]
+      `SELECT id, stackone_account_id FROM integrations WHERE id = ANY($1::uuid[]) AND user_id = $2`,
+      [integrationIds, user.id]
     )
     if (integrations.length === 0) {
       return NextResponse.json({ error: 'Integrations not found' }, { status: 404 })

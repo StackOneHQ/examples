@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requireUser } from '@/lib/auth-server'
+import { queryOne } from '@/lib/db'
 import { logger } from '@/utils/logger'
 
 /** Parse AVAILABLE_INTEGRATION_VERSIONS env (format: googledrive:1.0,googlesheets:1.0) into provider -> version map */
@@ -23,7 +24,17 @@ function getIntegrationVersionsByProvider(): Record<string, string> {
 export async function POST(request: NextRequest) {
   try {
     const user = await requireUser()
-    const { origin_owner_id, origin_owner_name, provider, account_id, multiple } = await request.json()
+    const { provider, account_id, multiple } = await request.json()
+
+    if (account_id) {
+      const owned = await queryOne<{ id: string }>(
+        `SELECT id FROM integrations WHERE stackone_account_id = $1 AND user_id = $2`,
+        [account_id, user.id]
+      )
+      if (!owned) {
+        return NextResponse.json({ error: 'Account not found' }, { status: 404 })
+      }
+    }
 
     const STACKONE_API_KEY = process.env.STACKONE_API_KEY
     if (!STACKONE_API_KEY) {
@@ -49,8 +60,8 @@ export async function POST(request: NextRequest) {
     const payload: Record<string, unknown> = {
       expires_in: 1800, // 30 minutes
       multiple: multiple || false,
-      origin_owner_id: origin_owner_id || user.id,
-      origin_owner_name: origin_owner_name || user.email || user.id,
+      origin_owner_id: user.id,
+      origin_owner_name: user.email || user.id,
       account_id: account_id || undefined,
       metadata,
     }

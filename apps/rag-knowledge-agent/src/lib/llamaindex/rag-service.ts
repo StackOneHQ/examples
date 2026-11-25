@@ -293,12 +293,12 @@ Guidelines:
     return Math.min(avgSimilarity + chunkBonus, 1.0)
   }
 
-  async deleteDocuments(documentIds: string[]): Promise<void> {
+  async deleteDocuments(documentIds: string[], userId: string): Promise<void> {
     try {
       if (documentIds.length === 0) return
       await query(
-        `DELETE FROM document_chunks WHERE document_id = ANY($1::uuid[])`,
-        [documentIds]
+        `DELETE FROM document_chunks WHERE document_id = ANY($1::uuid[]) AND user_id = $2`,
+        [documentIds, userId]
       )
     } catch (error) {
       logger.error('Error deleting documents:', error)

@@ -1,5 +1,14 @@
 import { MouseEvent } from 'react'
 
+const PLACEHOLDER_ORIGIN = 'http://same-origin.invalid'
+
+/** The redirect target as a path on this origin, or null if the URL parser would send it elsewhere. */
+export const sameOriginPath = (value: string | null): string | null => {
+  if (!value || !URL.canParse(value, PLACEHOLDER_ORIGIN)) return null
+  const url = new URL(value, PLACEHOLDER_ORIGIN)
+  return url.origin === PLACEHOLDER_ORIGIN ? url.pathname + url.search + url.hash : null
+}
+
 // Submit button hover handlers
 export const handleSubmitButtonMouseEnter = (e: MouseEvent<HTMLButtonElement>) => {
   const button = e.currentTarget

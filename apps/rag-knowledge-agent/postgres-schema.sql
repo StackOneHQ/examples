@@ -163,6 +163,19 @@ CREATE INDEX IF NOT EXISTS idx_chat_messages_thread_id ON public.chat_messages(t
 CREATE INDEX IF NOT EXISTS idx_chat_messages_user_id ON public.chat_messages(user_id);
 CREATE INDEX IF NOT EXISTS idx_chat_messages_created_at ON public.chat_messages(created_at);
 
+-- The app connects as the table owner, which row-level security does not restrict. With RLS on
+-- and no policies, every other role (such as Supabase's Data API roles) is denied.
+ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.integrations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.connector_metadata ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.documents ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.document_chunks ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.agents ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.agent_integrations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.agent_documents ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.threads ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.chat_messages ENABLE ROW LEVEL SECURITY;
+
 -- Timestamp trigger
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$

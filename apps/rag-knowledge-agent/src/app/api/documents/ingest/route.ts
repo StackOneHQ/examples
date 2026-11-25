@@ -85,7 +85,7 @@ export async function GET(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
-    await requireUser()
+    const user = await requireUser()
     const { fileIds } = await request.json()
 
     if (!fileIds || !Array.isArray(fileIds) || fileIds.length === 0) {
@@ -94,7 +94,7 @@ export async function DELETE(request: NextRequest) {
 
     // Initialize RAG service and delete documents
     const ragService = new RAGService()
-    await ragService.deleteDocuments(fileIds)
+    await ragService.deleteDocuments(fileIds, user.id)
 
     return NextResponse.json({
       success: true,

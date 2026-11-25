@@ -21,6 +21,12 @@ function getStackOneHeaders(apiKey: string, includeContentType: boolean = true):
   return headers
 }
 
+/** One URL path segment; "." and ".." would be resolved away by the URL parser. */
+function pathSegment(id: string): string {
+  if (id === '.' || id === '..') throw new Error(`Invalid StackOne ID: ${id}`)
+  return encodeURIComponent(id)
+}
+
 export interface StackOneDocument {
   id: string;
   name: string;
@@ -100,9 +106,19 @@ export async function listUserAccounts(apiKey: string): Promise<StackOneAccount[
   }
 }
 
+/** The origin_owner_id StackOne holds for the account, or null if the account is not readable. */
+export async function getAccountOwnerId(apiKey: string, accountId: string): Promise<string | null> {
+  const response = await fetch(`${STACKONE_API_BASE}/accounts/${pathSegment(accountId)}`, {
+    headers: getStackOneHeaders(apiKey),
+  })
+  if (!response.ok) return null
+  const account = (await response.json()) as { origin_owner_id?: string }
+  return account.origin_owner_id ?? null
+}
+
 export async function getAccountMetaInformation(apiKey: string, accountId: string): Promise<StackOneAccountMeta | null> {
   try {
-    const response = await fetch(`${STACKONE_API_BASE}/accounts/${accountId}/meta`, {
+    const response = await fetch(`${STACKONE_API_BASE}/accounts/${pathSegment(accountId)}/meta`, {
       headers: getStackOneHeaders(apiKey),
     })
 
@@ -230,7 +246,7 @@ export async function downloadFile(apiKey: string, fileId: string, accountId?: s
     // Check if this is a Google Workspace document that needs export
     const exportFormat = getExportFormat(fileMetadata.mime_type, fileMetadata.export_formats)
     
-    let url = `${STACKONE_API_BASE}/unified/documents/files/${fileId}/download`
+    let url = `${STACKONE_API_BASE}/unified/documents/files/${pathSegment(fileId)}/download`
     
     // If it's a Google Workspace document, add export format parameter
     if (exportFormat) {
@@ -280,7 +296,7 @@ export async function downloadFile(apiKey: string, fileId: string, accountId?: s
 
 export async function getFileMetadata(apiKey: string, fileId: string, accountId?: string): Promise<StackOneFileMetadata | null> {
   try {
-    const url = `${STACKONE_API_BASE}/unified/documents/files/${fileId}`
+    const url = `${STACKONE_API_BASE}/unified/documents/files/${pathSegment(fileId)}`
     logger.log(`Getting file metadata from URL: ${url}`)
     logger.log(`File ID: ${fileId}`)
     logger.log(`Account ID: ${accountId}`)
@@ -353,7 +369,7 @@ export async function getFileMetadata(apiKey: string, fileId: string, accountId?
 export async function getDocumentContent(apiKey: string, fileId: string, accountId?: string): Promise<StackOneDocumentContent | null> {
   try {
     // Try to get document content using the correct StackOne API
-    const url = `${STACKONE_API_BASE}/unified/documents/files/${fileId}`
+    const url = `${STACKONE_API_BASE}/unified/documents/files/${pathSegment(fileId)}`
     logger.log(`Trying to get document content from URL: ${url}`)
     logger.log(`File ID: ${fileId}`)
     logger.log(`Account ID: ${accountId}`)
@@ -425,7 +441,7 @@ export async function createSessionToken(
 
 export async function deleteAccount(apiKey: string, accountId: string): Promise<StackOneAccount> {
   try {
-    const response = await fetch(`${STACKONE_API_BASE}/accounts/${accountId}`, {
+    const response = await fetch(`${STACKONE_API_BASE}/accounts/${pathSegment(accountId)}`, {
       method: 'DELETE',
       headers: getStackOneHeaders(apiKey),
     })

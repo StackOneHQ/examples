@@ -1,7 +1,15 @@
 import { NextResponse } from 'next/server'
 import { RAGService } from '@/lib/llamaindex/rag-service'
+import { requireUser } from '@/lib/auth-server'
 
+// Signed-in only: each call spends an embeddings request on the app's OpenAI key.
 export async function GET() {
+  try {
+    await requireUser()
+  } catch {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
   const health = {
     status: 'ok',
     timestamp: new Date().toISOString(),

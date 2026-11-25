@@ -42,8 +42,9 @@ export async function POST(request: NextRequest) {
 
     const integrations = integrationIds.length > 0
       ? await query<{ id: string; stackone_account_id: string }>(
-          `SELECT id, stackone_account_id FROM integrations WHERE id = ANY($1::uuid[])`,
-          [integrationIds]
+          `SELECT id, stackone_account_id FROM integrations
+           WHERE id = ANY($1::uuid[]) AND user_id = $2`,
+          [integrationIds, user.id]
         )
       : []
 
