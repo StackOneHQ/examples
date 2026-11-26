@@ -1,4 +1,5 @@
 {
+  "installCommand": "npm ci --prefix .",
   "functions": {
     "app/api/connect/oauth2/[provider]/callback/route.ts": {
       "maxDuration": 10

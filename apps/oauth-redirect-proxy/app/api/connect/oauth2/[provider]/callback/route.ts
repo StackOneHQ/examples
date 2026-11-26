@@ -3,12 +3,36 @@ import { NextRequest, NextResponse } from 'next/server';
 // Force dynamic rendering for this route
 export const dynamic = 'force-dynamic';
 
+type RouteContext = { params: Promise<{ provider: string }> };
+
+// An OAuth form_post callback is a handful of short fields; anything larger is refused
+// before it is buffered.
+const MAX_BODY_BYTES = 64 * 1024;
+
+async function readBodyWithinLimit(request: NextRequest): Promise<string | null> {
+  if (!request.body) return '';
+  const reader = request.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let received = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    received += value.byteLength;
+    if (received > MAX_BODY_BYTES) {
+      await reader.cancel();
+      return null;
+    }
+    chunks.push(value);
+  }
+  return Buffer.concat(chunks).toString('utf8');
+}
+
 async function handleOAuthCallback(
   request: NextRequest,
-  { params }: { params: { provider: string } }
+  { params }: RouteContext
 ) {
   try {
-    const { provider } = params;
+    const { provider } = await params;
     const method = request.method;
     
     // Security: Encode provider to prevent path injection
@@ -20,29 +44,22 @@ async function handleOAuthCallback(
     // Get request body if it exists (for POST requests)
     let body: string | null = null;
     if (method === 'POST') {
-      try {
-        body = await request.text();
-      } catch (error) {
+      const received = await readBodyWithinLimit(request).catch((error) => {
         console.warn('Could not read request body:', error);
+        return '';
+      });
+      if (received === null) {
+        return new NextResponse('Payload too large', { status: 413 });
       }
+      body = received;
     }
     
-    // Security: Create sanitized log data (redact sensitive parameters)
-    const sanitizedParams: Record<string, string> = {};
-    searchParams.forEach((value, key) => {
-      // Redact sensitive OAuth parameters
-      if (key === 'code' || key === 'state' || key === 'access_token' || key === 'refresh_token') {
-        sanitizedParams[key] = '[REDACTED]';
-      } else {
-        sanitizedParams[key] = value;
-      }
-    });
-    
-    // Log the incoming request for debugging (sanitized)
+    // Log parameter names only: providers return codes and tokens under many names
+    // (code, id_token, JARM "response"), so no value is safe to log.
     console.log('OAuth redirect received:', {
       provider: encodedProvider,
       method,
-      searchParams: sanitizedParams,
+      searchParamKeys: Array.from(searchParams.keys()),
       bodyLength: body ? body.length : 0,
       userAgent: request.headers.get('user-agent')?.substring(0, 100) || 'unknown',
       timestamp: new Date().toISOString()
@@ -71,13 +88,14 @@ async function handleOAuthCallback(
       request.headers.forEach((value, key) => {
         const lowerKey = key.toLowerCase();
         
-        // Skip hop-by-hop headers that should not be forwarded
-        const hopByHopHeaders = [
+        // Hop-by-hop headers, and this domain's own credentials, which StackOne must not get
+        const skippedHeaders = [
           'host', 'connection', 'keep-alive', 'proxy-authenticate', 'proxy-authorization',
-          'te', 'trailers', 'transfer-encoding', 'upgrade', 'content-length', 'content-encoding'
+          'te', 'trailers', 'transfer-encoding', 'upgrade', 'content-length', 'content-encoding',
+          'cookie', 'authorization'
         ];
         
-        if (!hopByHopHeaders.includes(lowerKey)) {
+        if (!skippedHeaders.includes(lowerKey)) {
           forwardHeaders[key] = value;
         }
       });
@@ -143,14 +161,14 @@ async function handleOAuthCallback(
 
 export async function GET(
   request: NextRequest,
-  context: { params: { provider: string } }
+  context: RouteContext
 ) {
   return handleOAuthCallback(request, context);
 }
 
 export async function POST(
   request: NextRequest,
-  context: { params: { provider: string } }
+  context: RouteContext
 ) {
   return handleOAuthCallback(request, context);
 }
