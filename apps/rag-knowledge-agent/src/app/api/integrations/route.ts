@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { query, queryOne } from '@/lib/db'
 import { requireUser } from '@/lib/auth-server'
+import { getAccountOwnerId } from '@/lib/stackone/api'
 import { logger } from '@/utils/logger'
 
 /** GET /api/integrations - list current user's integrations */
@@ -63,18 +64,26 @@ export async function POST(request: NextRequest) {
     const user = await requireUser()
     const body = await request.json()
     const { provider, stackone_account_id, account_name } = body
-    if (!provider || !stackone_account_id) {
+    if (!provider || typeof stackone_account_id !== 'string' || !stackone_account_id) {
       return NextResponse.json({ error: 'provider and stackone_account_id required' }, { status: 400 })
+    }
+    const apiKey = process.env.STACKONE_API_KEY
+    if (!apiKey) {
+      return NextResponse.json({ error: 'StackOne API key not configured' }, { status: 500 })
+    }
+    if ((await getAccountOwnerId(apiKey, stackone_account_id)) !== user.id) {
+      return NextResponse.json({ error: 'Account is not linked to this user' }, { status: 403 })
     }
     const rows = await query(
       `INSERT INTO integrations (user_id, provider, stackone_account_id, account_name, status)
        VALUES ($1, $2, $3, $4, 'active')
        ON CONFLICT (stackone_account_id) DO UPDATE SET status = 'active', account_name = COALESCE(EXCLUDED.account_name, integrations.account_name), updated_at = NOW()
+       WHERE integrations.user_id = EXCLUDED.user_id
        RETURNING *`,
       [user.id, provider, stackone_account_id, account_name ?? 'Connected account']
     )
     const integration = rows[0]
-    if (!integration) return NextResponse.json({ error: 'Failed to create integration' }, { status: 500 })
+    if (!integration) return NextResponse.json({ error: 'Account is linked to another user' }, { status: 409 })
     return NextResponse.json({ integration })
   } catch (err) {
     if ((err as Error).message === 'Unauthorized') {

@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef } from 'react'
 import { useStackOneHub } from '@stackone/react-hub'
 import { Account } from '@stackone/react-hub/dist/entities/Account'
-import { getSessionTokenForUser } from '@/utils/sessionUtils'
+import { getSessionToken } from '@/utils/sessionUtils'
 import { logger } from '@/utils/logger'
 
 interface StackOneHubProps {
@@ -37,7 +37,7 @@ export function StackOneHub({
       'https://stackone.com'
     ]
     
-    if (!allowedOrigins.some(origin => event.origin.startsWith(origin))) {
+    if (!allowedOrigins.includes(event.origin)) {
       return
     }
 
@@ -99,7 +99,7 @@ export function StackOneHub({
 
   const startFlow = useCallback(async () => {
     try {
-      const sessionToken = await getSessionTokenForUser(provider, accountId, multiple)
+      const sessionToken = await getSessionToken({ provider, account_id: accountId, multiple })
       
       const connectOptions = {
         sessionToken: sessionToken.token,

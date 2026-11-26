@@ -1,9 +1,6 @@
-import { getSession } from 'next-auth/react'
 import { logger } from '@/utils/logger'
 
 export interface SessionTokenParams {
-  origin_owner_id: string
-  origin_owner_name: string
   provider?: string
   account_id?: string
   multiple?: boolean
@@ -15,7 +12,7 @@ export interface SessionTokenResponse {
 
 /**
  * Retrieves a session token from the StackOne API via our backend.
- * Call from client; backend enforces auth via session cookie.
+ * The backend sets the account owner to the signed-in user.
  */
 export const getSessionToken = async (params: SessionTokenParams): Promise<SessionTokenResponse> => {
   try {
@@ -23,8 +20,6 @@ export const getSessionToken = async (params: SessionTokenParams): Promise<Sessi
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        origin_owner_id: params.origin_owner_id,
-        origin_owner_name: params.origin_owner_name,
         provider: params.provider ?? undefined,
         account_id: params.account_id ?? undefined,
         multiple: params.multiple ?? false,
@@ -51,34 +46,6 @@ export const getSessionToken = async (params: SessionTokenParams): Promise<Sessi
     return { token: data.token }
   } catch (error) {
     logger.error('Error retrieving connect session token:', error)
-    throw error
-  }
-}
-
-/**
- * Convenience: get session token using current user from NextAuth session.
- */
-export const getSessionTokenForUser = async (
-  provider?: string,
-  accountId?: string,
-  multiple: boolean = false
-): Promise<SessionTokenResponse> => {
-  try {
-    const session = await getSession()
-    const user = session?.user
-    if (!user?.id) {
-      throw new Error('User not authenticated')
-    }
-
-    return getSessionToken({
-      origin_owner_id: user.id,
-      origin_owner_name: (user.email ?? user.name) || user.id,
-      provider,
-      account_id: accountId,
-      multiple,
-    })
-  } catch (error) {
-    logger.error('Error retrieving session token for user:', error)
     throw error
   }
 }

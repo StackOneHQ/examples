@@ -62,8 +62,9 @@ export async function PUT(
         typeof f === 'string' ? f : JSON.stringify(f)
       ) as string[]
       await query(
-        `INSERT INTO agent_integrations (agent_id, integration_id, file_ids) VALUES ($1, $2, $3)`,
-        [agentId, integration_id, fileIdsArray]
+        `INSERT INTO agent_integrations (agent_id, integration_id, file_ids)
+         SELECT $1, id, $3 FROM integrations WHERE id = $2 AND user_id = $4`,
+        [agentId, integration_id, fileIdsArray, user.id]
       )
     }
 

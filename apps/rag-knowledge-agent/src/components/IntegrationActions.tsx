@@ -161,7 +161,7 @@ export function ConnectProvider({ provider, onSuccess }: ConnectProviderProps) {
   const [isSettingUp, setIsSettingUp] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const handleConnectSuccess = async (account: Account) => {
+  const handleConnectSuccess = async (account: Account & { name?: string }) => {
     logger.log('Connect success:', account)
     setIsSettingUp(true)
     setError(null)

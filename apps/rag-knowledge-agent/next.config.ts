@@ -21,10 +21,6 @@ const nextConfig: NextConfig = {
       exclude: ['error', 'warn']
     } : false,
   },
-  // Temporarily ignore TypeScript errors for build
-  typescript: {
-    ignoreBuildErrors: true,
-  },
 };
 
 export default nextConfig;

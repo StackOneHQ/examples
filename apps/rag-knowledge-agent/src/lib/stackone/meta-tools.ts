@@ -247,9 +247,10 @@ async function getToolsForAccounts(accountIds: string[]) {
   const toolset = new StackOneToolSet({ baseUrl })
   const tools = await toolset.fetchTools({ accountIds })
 
-  const accountIdsForLog = accountIds.map((id) => id.slice(0, 12) + '...')
-  const toolCount = tools.toArray().length
-  console.log('[StackOne tools] fetchTools result:', { accountIdsForLog, toolCount })
+  console.log('[StackOne tools] fetchTools result:', {
+    accountCount: accountIds.length,
+    toolCount: tools.toArray().length,
+  })
 
   return tools
 }

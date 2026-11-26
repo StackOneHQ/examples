@@ -38,6 +38,7 @@ import {
   handleAdditionalLinkMouseEnter,
   handleAdditionalLinkMouseLeave
 } from './loginUtils'
+import { sameOriginPath } from './sameOriginPath'
 
 const TypographyTitle = Typography.Title as any
 const TypographyText = Typography.Text as any
@@ -51,7 +52,7 @@ export default function LoginPage() {
   const [isForgotPasswordMode, setIsForgotPasswordMode] = useState(false)
   const searchParams = useSearchParams()
   const messageParam = searchParams.get('message')
-  const redirectTo = searchParams.get('redirectTo')
+  const redirectTo = sameOriginPath(searchParams.get('redirectTo'))
   const router = useRouter()
   const { data: session, status } = useSession()
 

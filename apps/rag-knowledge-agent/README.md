@@ -220,7 +220,7 @@ This architecture provides several key advantages for building document AI appli
 - **Real-time Updates**: Webhook integration keeps documents synchronized
 
 #### **🛡️ Production Ready**
-- **Multi-tenant Security**: Row-level security ensures data isolation between users
+- **Multi-tenant Security**: Every query is scoped to the signed-in user, and row-level security keeps the tables closed to direct database API access
 - **Error Handling**: Comprehensive error management and retry logic
 - **Monitoring**: Built-in logging and performance tracking
 
@@ -289,7 +289,7 @@ Requires `@stackone/ai` and `STACKONE_API_KEY`. The agent uses the first linked 
 
 1. In [StackOne Webhooks](https://app.stackone.com/webhooks), add a webhook and set the URL to your app (e.g. `https://your-ngrok-url.ngrok.io/api/stackone/webhook` for local dev).
 2. Subscribe to **Documents > Files**: `documents_files.updated`, `documents_files.deleted` (and any account events you need). The app does not handle `documents_files.created`—users select which files to sync via the file picker.
-3. Copy the **Signing secret** and set `STACKONE_WEBHOOK_SECRET` in `.env.local` so the app can verify `x-stackone-signature`.
+3. Copy the **Signing secret** and set `STACKONE_WEBHOOK_SECRET` in `.env.local` so the app can verify `x-stackone-signature`. Without it the endpoint rejects every event.
 
 For local development, use [ngrok](https://ngrok.com) (e.g. `ngrok http 3000`) and use the ngrok URL as the webhook URL in StackOne.
 

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createHmac } from 'crypto'
+import { createHmac, timingSafeEqual } from 'crypto'
 import { query, queryOne } from '@/lib/db'
 import { downloadFile, getDocumentContent } from '@/lib/stackone/api'
 import { processDocument } from '@/lib/llamaindex/rag-service'
@@ -35,8 +35,9 @@ interface StackOneWebhookPayload {
 
 function isSignatureValid(signature: string | null, payload: string, secret: string): boolean {
   if (!signature || !secret) return false
-  const hash = createHmac('sha256', secret).update(payload).digest('base64url')
-  return hash === signature
+  const expected = Buffer.from(createHmac('sha256', secret).update(payload).digest('base64url'))
+  const received = Buffer.from(signature)
+  return expected.length === received.length && timingSafeEqual(expected, received)
 }
 
 export async function POST(request: NextRequest) {
@@ -58,12 +59,14 @@ export async function POST(request: NextRequest) {
     })
 
     const secret = process.env.STACKONE_WEBHOOK_SECRET
-    if (secret) {
-      const signature = request.headers.get('x-stackone-signature')
-      if (!isSignatureValid(signature, rawBody, secret)) {
-        logger.warn('[Webhook] Signature verification failed', { event, account_id: accountId })
-        return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
-      }
+    if (!secret) {
+      logger.error('[Webhook] STACKONE_WEBHOOK_SECRET is not set; refusing unsigned events')
+      return NextResponse.json({ error: 'Webhook signing secret not configured' }, { status: 503 })
+    }
+    const signature = request.headers.get('x-stackone-signature')
+    if (!isSignatureValid(signature, rawBody, secret)) {
+      logger.warn('[Webhook] Signature verification failed', { event, account_id: accountId })
+      return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
     }
 
     logger.log('[Webhook] Event received', {

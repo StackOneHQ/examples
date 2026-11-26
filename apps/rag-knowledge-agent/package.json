@@ -7,14 +7,16 @@
     "dev:webpack": "NODE_OPTIONS='--no-warnings' next dev --webpack",
     "build": "NODE_OPTIONS='--no-warnings' next build --webpack",
     "start": "NODE_OPTIONS='--no-warnings' next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test 'src/**/*.test.ts'"
   },
   "dependencies": {
     "@ai-sdk/openai": "^3.0.115",
     "@ant-design/icons": "^5.6.1",
     "@ant-design/v5-patch-for-react-19": "^1.0.3",
-    "@langchain/core": "^0.3.72",
-    "@langchain/textsplitters": "^0.1.0",
+    "@langchain/core": "^1.5.0",
+    "@langchain/textsplitters": "^1.0.2",
     "@llamaindex/chat-ui": "^0.6.1",
     "@llamaindex/core": "0.6.22",
     "@llamaindex/env": "0.1.30",
@@ -53,5 +55,10 @@
     "eslint-config-next": "^16.1.0",
     "tailwindcss": "^4",
     "typescript": "^5"
+  },
+  "overrides": {
+    "@mdxeditor/editor": {
+      "js-yaml": "^4.3.2"
+    }
   }
 }
